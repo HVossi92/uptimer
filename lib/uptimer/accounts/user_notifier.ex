@@ -5,10 +5,12 @@ defmodule Uptimer.Accounts.UserNotifier do
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
+    from_email = System.get_env("GMAIL_USERNAME") || "noreply@example.com"
+
     email =
       new()
       |> to(recipient)
-      |> from({"Uptimer", "contact@example.com"})
+      |> from({"Uptimer", from_email})
       |> subject(subject)
       |> text_body(body)
 

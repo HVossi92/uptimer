@@ -80,3 +80,22 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Use SMTP adapter for sending actual emails in development
+config :uptimer, Uptimer.Mailer,
+  adapter: Swoosh.Adapters.SMTP,
+  relay: "smtp.gmail.com",
+  port: 465,
+  username: System.get_env("GMAIL_USERNAME"),
+  password: System.get_env("GMAIL_PASSWORD"),
+  ssl: true,
+  tls: :never,
+  auth: :always,
+  no_mx_lookups: true,
+  retries: 2,
+  sockopts: [
+    verify: :verify_peer,
+    cacerts: :public_key.cacerts_get(),
+    depth: 99,
+    server_name_indication: 'smtp.gmail.com'
+  ]
