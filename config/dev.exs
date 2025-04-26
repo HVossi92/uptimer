@@ -97,5 +97,5 @@ config :uptimer, Uptimer.Mailer,
     verify: :verify_peer,
     cacerts: :public_key.cacerts_get(),
     depth: 99,
-    server_name_indication: 'smtp.gmail.com'
+    server_name_indication: ~c"smtp.gmail.com"
   ]

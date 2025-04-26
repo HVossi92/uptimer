@@ -11,8 +11,7 @@ defmodule Uptimer.Application do
       UptimerWeb.Telemetry,
       Uptimer.Repo,
       {Ecto.Migrator,
-        repos: Application.fetch_env!(:uptimer, :ecto_repos),
-        skip: skip_migrations?()},
+       repos: Application.fetch_env!(:uptimer, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:uptimer, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Uptimer.PubSub},
       # Start the Finch HTTP client for sending emails
