@@ -20,7 +20,7 @@ config :uptimer, UptimerWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "vwtNCNGnXmZU63PVrpvuC8/vQ2m8LFgkm8Z2CCXL9sPIwS7H1p49JTrlyjepgrtz",
+  secret_key_base: "AqZJF8vf8l3J80XEo8Qew8cd/j+vhqFp1J5kSfWUrpZG+G/BOuDJnsZIslIAt6qD",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:uptimer, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:uptimer, ~w(--watch)]}
@@ -80,22 +80,3 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
-
-# Use SMTP adapter for sending actual emails in development
-config :uptimer, Uptimer.Mailer,
-  adapter: Swoosh.Adapters.SMTP,
-  relay: "smtp.gmail.com",
-  port: 465,
-  username: System.get_env("GMAIL_USERNAME"),
-  password: System.get_env("GMAIL_PASSWORD"),
-  ssl: true,
-  tls: :never,
-  auth: :always,
-  no_mx_lookups: true,
-  retries: 2,
-  sockopts: [
-    verify: :verify_peer,
-    cacerts: :public_key.cacerts_get(),
-    depth: 99,
-    server_name_indication: 'smtp.gmail.com'
-  ]

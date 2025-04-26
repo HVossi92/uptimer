@@ -1,8 +1,5 @@
 import Config
 
-# Only in tests, remove the complexity from the password hashing algorithm
-config :bcrypt_elixir, :log_rounds, 1
-
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used
@@ -17,7 +14,7 @@ config :uptimer, Uptimer.Repo,
 # you can enable the server option below.
 config :uptimer, UptimerWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "SBHtXYGX8UFTvOTDCIklJTYd10xFI8f659HkRxZWbSRAeu0SwWNXsZp8aGBplq/e",
+  secret_key_base: "nc2bMtGEVJoj/AW9iiLOCZpfqwpFXQSU+KAnWqSDCnLY/HNicMeUi+ywmx4D38Fi",
   server: false
 
 # In test we don't send emails

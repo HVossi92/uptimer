@@ -20,7 +20,7 @@ config :uptimer, UptimerWeb.Endpoint,
     layout: false
   ],
   pubsub_server: Uptimer.PubSub,
-  live_view: [signing_salt: "dpmUFVY0"]
+  live_view: [signing_salt: "NhK3VCIn"]
 
 # Configures the mailer
 #

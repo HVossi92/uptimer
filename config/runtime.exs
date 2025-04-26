@@ -110,14 +110,4 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
-  config :uptimer, Uptimer.Mailer,
-  adapter: Swoosh.Adapters.SMTP,
-  relay: "smtp.gmail.com",
-  port: 587,
-  username: System.get_env("GMAIL_USERNAME"),
-  password: System.get_env("GMAIL_PASSWORD"),
-  ssl: false,
-  tls: :always,
-  tls_options: [verify: :verify_none],
-  auth: :always
 end

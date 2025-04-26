@@ -7,7 +7,7 @@ defmodule UptimerWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_uptimer_key",
-    signing_salt: "0DD5McS5",
+    signing_salt: "N/5hOUWZ",
     same_site: "Lax"
   ]
 
