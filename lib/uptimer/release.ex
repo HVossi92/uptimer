@@ -1,7 +1,6 @@
 defmodule Uptimer.Release do
   @moduledoc """
-  Used for executing DB release tasks when run in production without Mix
-  installed.
+  Release tasks for database migrations
   """
   @app :uptimer
 
