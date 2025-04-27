@@ -68,6 +68,12 @@ defmodule UptimerWeb.Router do
       on_mount: [{UptimerWeb.UserAuth, :ensure_authenticated}] do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+
+      live "/websites", WebsiteLive.Index, :index
+      live "/websites/new", WebsiteLive.Index, :new
+      live "/websites/:id/edit", WebsiteLive.Index, :edit
+      live "/websites/:id", WebsiteLive.Show, :show
+      live "/websites/:id/show/edit", WebsiteLive.Show, :edit
     end
   end
 
