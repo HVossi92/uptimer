@@ -8,7 +8,7 @@ defmodule UptimerWeb.UserConfirmationLiveTest do
   alias Uptimer.Repo
 
   setup do
-    %{user: user_fixture()}
+    %{user: user_fixture(%{}, false)}
   end
 
   describe "Confirm user" do

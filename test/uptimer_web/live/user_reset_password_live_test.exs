@@ -7,7 +7,7 @@ defmodule UptimerWeb.UserResetPasswordLiveTest do
   alias Uptimer.Accounts
 
   setup do
-    user = user_fixture()
+    user = user_fixture(%{}, false)
 
     token =
       extract_user_token(fn url ->
@@ -40,10 +40,10 @@ defmodule UptimerWeb.UserResetPasswordLiveTest do
         lv
         |> element("#reset_password_form")
         |> render_change(
-          user: %{"password" => "secret12", "password_confirmation" => "secret123456"}
+          user: %{"password" => "123", "password_confirmation" => "secret123456"}
         )
 
-      assert result =~ "should be at least 12 character"
+      assert result =~ "should be at least 4 character"
       assert result =~ "does not match password"
     end
   end
@@ -75,14 +75,14 @@ defmodule UptimerWeb.UserResetPasswordLiveTest do
         lv
         |> form("#reset_password_form",
           user: %{
-            "password" => "too short",
+            "password" => "too",
             "password_confirmation" => "does not match"
           }
         )
         |> render_submit()
 
       assert result =~ "Reset Password"
-      assert result =~ "should be at least 12 character(s)"
+      assert result =~ "should be at least 4 character(s)"
       assert result =~ "does not match password"
     end
   end
@@ -93,7 +93,7 @@ defmodule UptimerWeb.UserResetPasswordLiveTest do
 
       {:ok, conn} =
         lv
-        |> element(~s|main a:fl-contains("Log in")|)
+        |> element(~s|a:fl-contains("Log in")|)
         |> render_click()
         |> follow_redirect(conn, ~p"/users/log_in")
 
@@ -108,7 +108,7 @@ defmodule UptimerWeb.UserResetPasswordLiveTest do
 
       {:ok, conn} =
         lv
-        |> element(~s|main a:fl-contains("Register")|)
+        |> element(~s|a:fl-contains("Register")|)
         |> render_click()
         |> follow_redirect(conn, ~p"/users/register")
 

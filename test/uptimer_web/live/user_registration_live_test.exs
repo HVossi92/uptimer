@@ -28,11 +28,11 @@ defmodule UptimerWeb.UserRegistrationLiveTest do
       result =
         lv
         |> element("#registration_form")
-        |> render_change(user: %{"email" => "with spaces", "password" => "too short"})
+        |> render_change(user: %{"email" => "with spaces", "password" => "sho"})
 
       assert result =~ "Register"
       assert result =~ "must have the @ sign and no spaces"
-      assert result =~ "should be at least 12 character"
+      assert result =~ "should be at least 4 character"
     end
   end
 
@@ -45,14 +45,17 @@ defmodule UptimerWeb.UserRegistrationLiveTest do
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/users/log_in"
 
-      # Now do a logged in request and assert on the menu
+      # Since confirmation is now required, the user shouldn't be logged in yet
       conn = get(conn, "/")
       response = html_response(conn, 200)
-      assert response =~ email
-      assert response =~ "Settings"
-      assert response =~ "Log out"
+      refute response =~ email
+      # Look for a more specific indicator of not being logged in
+      assert response =~ "Register"
+      assert response =~ "Log in"
+      # And not having a logout link
+      refute response =~ "Log out"
     end
 
     test "renders errors for duplicated email", %{conn: conn} do
@@ -77,7 +80,7 @@ defmodule UptimerWeb.UserRegistrationLiveTest do
 
       {:ok, _login_live, login_html} =
         lv
-        |> element(~s|main a:fl-contains("Log in")|)
+        |> element(~s|a:fl-contains("Log in")|)
         |> render_click()
         |> follow_redirect(conn, ~p"/users/log_in")
 
