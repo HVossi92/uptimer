@@ -4,7 +4,7 @@ defmodule Uptimer.Websites.Website do
 
   schema "websites" do
     field :name, :string
-    field :status, :string
+    field :status, :string, default: "ok"
     field :address, :string
 
     timestamps(type: :utc_datetime)

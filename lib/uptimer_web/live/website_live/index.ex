@@ -44,4 +44,25 @@ defmodule UptimerWeb.WebsiteLive.Index do
 
     {:noreply, stream_delete(socket, :websites, website)}
   end
+
+  @impl true
+  def handle_event("save", %{"website" => website_params}, socket) do
+    case Websites.create_website(Map.put(website_params, "status", "ok")) do
+      {:ok, website} ->
+        {:noreply,
+         socket
+         |> stream_insert(:websites, website)
+         |> put_flash(:info, "Website created successfully")}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, put_flash(socket, :error, "Error creating website: #{error_to_string(changeset)}")}
+    end
+  end
+
+  defp error_to_string(changeset) do
+    Enum.map(changeset.errors, fn {field, {message, _}} ->
+      "#{field} #{message}"
+    end)
+    |> Enum.join(", ")
+  end
 end
