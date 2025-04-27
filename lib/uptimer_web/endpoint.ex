@@ -26,9 +26,10 @@ defmodule UptimerWeb.Endpoint do
     only: UptimerWeb.static_paths()
 
   # Serve thumbnail files uploaded to the /uploads path
+  # Use explicit path to avoid confusion about location in the release
   plug Plug.Static,
-    at: "/uploads",
-    from: Path.expand("./priv/static/uploads"),
+    at: "/uploads/thumbnails",
+    from: Path.join(:code.priv_dir(:uptimer), "static/uploads/thumbnails"),
     gzip: false
 
   # Code reloading can be explicitly enabled under the

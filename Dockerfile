@@ -94,7 +94,8 @@ ENV CHROME_NO_SANDBOX=true
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/uptimer ./
 
-USER nobody
+# Create uploads directory and set appropriate permissions
+RUN mkdir -p /app/priv/static/uploads/thumbnails && chown -R nobody:root /app/priv
 
 # Create a custom entrypoint script
 COPY --chown=nobody:root entrypoint.sh ./
@@ -104,3 +105,6 @@ ENV ERL_MAX_PORTS=1024
 # Use tini as init process
 ENTRYPOINT ["/usr/bin/tini", "--", "/app/entrypoint.sh"]
 CMD ["/app/bin/server"]
+
+# Define a volume for persisting the thumbnails
+VOLUME ["/app/priv/static/uploads/thumbnails"]

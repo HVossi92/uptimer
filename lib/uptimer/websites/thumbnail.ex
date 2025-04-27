@@ -4,7 +4,8 @@ defmodule Uptimer.Websites.Thumbnail do
   """
   require Logger
 
-  @priv_dir Application.app_dir(:uptimer, "priv")
+  # Fix the priv_dir calculation to work in both development and release mode
+  @priv_dir :code.priv_dir(:uptimer)
   @thumbnail_dir Path.join([@priv_dir, "static", "uploads", "thumbnails"])
   @thumbnail_path_prefix "/uploads/thumbnails"
 
@@ -14,8 +15,9 @@ defmodule Uptimer.Websites.Thumbnail do
   @viewport_height 200
 
   def init do
-    # Ensure the thumbnail directory exists
+    # Ensure the thumbnail directory exists and log where it's being created
     File.mkdir_p!(@thumbnail_dir)
+    Logger.info("Thumbnail directory initialized at: #{@thumbnail_dir}")
   end
 
   @doc """
@@ -32,15 +34,20 @@ defmodule Uptimer.Websites.Thumbnail do
     filename = "#{generate_filename(sanitized_url)}.webp"
     full_path = Path.join(@thumbnail_dir, filename)
 
+    # Log the path where we're saving the file
+    Logger.info("Generating thumbnail at path: #{full_path}")
+
     case generate_screenshot(sanitized_url, full_path) do
       :ok ->
         # Screenshot was successfully saved to the output path
         thumbnail_url = Path.join(@thumbnail_path_prefix, filename)
+        Logger.info("Screenshot generated successfully: #{thumbnail_url}")
         {:ok, thumbnail_url}
 
       {:ok, _} ->
         # Some versions might return {:ok, path}
         thumbnail_url = Path.join(@thumbnail_path_prefix, filename)
+        Logger.info("Screenshot generated successfully: #{thumbnail_url}")
         {:ok, thumbnail_url}
 
       error ->
