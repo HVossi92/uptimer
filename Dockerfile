@@ -100,6 +100,7 @@ USER nobody
 COPY --chown=nobody:root entrypoint.sh ./
 RUN chmod +x /app/entrypoint.sh
 
+ENV ERL_MAX_PORTS=1024
 # Use tini as init process
 ENTRYPOINT ["/usr/bin/tini", "--", "/app/entrypoint.sh"]
 CMD ["/app/bin/server"]
