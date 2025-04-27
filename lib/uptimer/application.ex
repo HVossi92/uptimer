@@ -16,11 +16,20 @@ defmodule Uptimer.Application do
       {Phoenix.PubSub, name: Uptimer.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Uptimer.Finch},
-      # Start a worker by calling: Uptimer.Worker.start_link(arg)
-      # {Uptimer.Worker, arg},
       # Start to serve requests, typically the last entry
       UptimerWeb.Endpoint
     ]
+
+    # Setup thumbnail directory
+    Uptimer.Websites.Thumbnail.init()
+
+    # Ensure ChromicPDF is included in the supervision tree
+    children =
+      if Application.get_env(:uptimer, :include_chromic_pdf, true) do
+        children ++ [ChromicPDF]
+      else
+        children
+      end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

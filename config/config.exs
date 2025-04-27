@@ -20,7 +20,7 @@ config :uptimer, UptimerWeb.Endpoint,
     layout: false
   ],
   pubsub_server: Uptimer.PubSub,
-  live_view: [signing_salt: "dpmUFVY0"]
+  live_view: [signing_salt: "JCxTrdJY"]
 
 # Configures the mailer
 #
@@ -43,7 +43,7 @@ config :esbuild,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "3.4.3",
+  version: "3.4.0",
   uptimer: [
     args: ~w(
       --config=tailwind.config.js
@@ -60,6 +60,32 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+# Configure ChromicPDF for website thumbnails
+config :chromic_pdf,
+  chrome_executable: "/usr/bin/chromium",
+  no_sandbox: true,
+  session_pool: [
+    size: 6,
+    timeout: 20_000,
+    max_session_uses: 50
+  ],
+  discard_stderr: false,
+  chrome_args: [
+    "--headless",
+    "--disable-gpu",
+    "--disable-dev-shm-usage",
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-software-rasterizer",
+    "--disable-extensions",
+    "--disable-audio-output",
+    "--hide-scrollbars",
+    "--mute-audio",
+    "--font-render-hinting=none",
+    "--disable-web-security",
+    "--disable-sync"
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

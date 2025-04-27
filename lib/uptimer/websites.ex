@@ -7,6 +7,7 @@ defmodule Uptimer.Websites do
   alias Uptimer.Repo
 
   alias Uptimer.Websites.Website
+  alias Uptimer.Websites.Thumbnail
 
   @doc """
   Returns the list of websites.
@@ -50,9 +51,20 @@ defmodule Uptimer.Websites do
 
   """
   def create_website(attrs \\ %{}) do
-    %Website{}
-    |> Website.changeset(attrs)
-    |> Repo.insert()
+    result =
+      %Website{}
+      |> Website.changeset(attrs)
+      |> Repo.insert()
+
+    case result do
+      {:ok, website} ->
+        # Generate thumbnail asynchronously
+        Task.start(fn -> generate_and_save_thumbnail(website) end)
+        result
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -68,9 +80,23 @@ defmodule Uptimer.Websites do
 
   """
   def update_website(%Website{} = website, attrs) do
-    website
-    |> Website.changeset(attrs)
-    |> Repo.update()
+    result =
+      website
+      |> Website.changeset(attrs)
+      |> Repo.update()
+
+    case result do
+      {:ok, updated_website} ->
+        # If address was changed, regenerate thumbnail
+        if Map.get(attrs, "address") && website.address != updated_website.address do
+          Task.start(fn -> generate_and_save_thumbnail(updated_website) end)
+        end
+
+        result
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -86,6 +112,10 @@ defmodule Uptimer.Websites do
 
   """
   def delete_website(%Website{} = website) do
+    # Delete all thumbnails for this website
+    Thumbnail.delete_thumbnails_for_url(website.address)
+
+    # Delete the website from database
     Repo.delete(website)
   end
 
@@ -100,5 +130,29 @@ defmodule Uptimer.Websites do
   """
   def change_website(%Website{} = website, attrs \\ %{}) do
     Website.changeset(website, attrs)
+  end
+
+  @doc """
+  Generates and saves a thumbnail for a website.
+  """
+  def generate_and_save_thumbnail(%Website{} = website) do
+    case Thumbnail.generate_thumbnail(website.address) do
+      {:ok, thumbnail_url} ->
+        # Update the website with the new thumbnail URL
+        result = update_website(website, %{"thumbnail_url" => thumbnail_url})
+
+        # Broadcast event that thumbnail has been generated
+        Phoenix.PubSub.broadcast(
+          Uptimer.PubSub,
+          "website:thumbnail:#{website.id}",
+          {:website_thumbnail_generated, website.id, thumbnail_url}
+        )
+
+        result
+
+      {:error, _reason} ->
+        # Just log error and continue (already logged in Thumbnail module)
+        {:error, :thumbnail_generation_failed}
+    end
   end
 end

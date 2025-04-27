@@ -40,3 +40,6 @@ npm-debug.log
 *.db-*
 
 .env
+
+# Ignore website thumbnails
+/priv/static/uploads/thumbnails/

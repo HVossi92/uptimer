@@ -1,0 +1,8 @@
+<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="200" fill="#f0f0f0"/>
+  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#888">No Preview Available</text>
+  <g transform="translate(160, 70)">
+    <path d="M40,0 L80,60 L0,60 Z" fill="#ccc"/>
+    <rect x="20" y="25" width="40" height="35" fill="#ddd"/>
+  </g>
+</svg> 
