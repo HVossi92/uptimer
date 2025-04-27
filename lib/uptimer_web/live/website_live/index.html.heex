@@ -13,7 +13,13 @@
           <p class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mb-2 truncate">{website.address}</p>
         </div>
         <div class="h-32 sm:h-40 bg-gray-200 dark:bg-gray-700 relative">
-          <iframe src="about:blank" class="w-full h-full" title="Main Website"></iframe>
+          <iframe 
+            src={website.address} 
+            class="w-full h-full" 
+            title={website.name}
+            sandbox="allow-same-origin"
+            loading="lazy"
+            referrerpolicy="no-referrer"></iframe>
           <div class="absolute inset-0 flex items-center justify-center">
             <img src="https://via.placeholder.com/400x200?text=example.com" alt="Website preview"
               class="max-w-full max-h-full object-cover">
