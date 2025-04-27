@@ -1,18 +1,18 @@
 # Uptimer
 
-To start your Phoenix server:
+## Todos:
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
-
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+- [ ] Make sure thumbnails are small
+- [ ] Do use iframes whenever possible to avoid overhead
+- [ ] Limit thumbnails to 4 per free account
+- [ ] User deletion
+- [ ] Make sign-up process nice
+- [ ] Fix tests
+- [ ] Create full readme
+- [ ] Add github link to page
+- [ ] Add landing page
+- [ ] Implement automatic refresh
+- [ ] Fix timer on mobile view
+- [ ] Show unavailable websites as offline & red
+- [ ] Implement edit website
+- [ ] Allow inputs without http or with www
