@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS "schema_migrations" ("version" INTEGER PRIMARY KEY, "inserted_at" TEXT);
+CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "email" TEXT NOT NULL COLLATE NOCASE, "hashed_password" TEXT NOT NULL, "confirmed_at" TEXT, "inserted_at" TEXT NOT NULL, "updated_at" TEXT NOT NULL);
+CREATE TABLE sqlite_sequence(name,seq);
+CREATE UNIQUE INDEX "users_email_index" ON "users" ("email");
+CREATE TABLE IF NOT EXISTS "users_tokens" ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "user_id" INTEGER NOT NULL CONSTRAINT "users_tokens_user_id_fkey" REFERENCES "users"("id") ON DELETE CASCADE, "token" BLOB NOT NULL, "context" TEXT NOT NULL, "sent_to" TEXT, "inserted_at" TEXT NOT NULL);
+CREATE INDEX "users_tokens_user_id_index" ON "users_tokens" ("user_id");
+CREATE UNIQUE INDEX "users_tokens_context_token_index" ON "users_tokens" ("context", "token");
+CREATE TABLE IF NOT EXISTS "websites" ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "name" TEXT, "address" TEXT, "inserted_at" TEXT NOT NULL, "updated_at" TEXT NOT NULL, "thumbnail_url" TEXT, "thumbnail" INTEGER DEFAULT false, "status" INTEGER DEFAULT 200);
+INSERT INTO schema_migrations VALUES(20250425104251,'2025-04-26T17:19:25');
+INSERT INTO schema_migrations VALUES(20250427112315,'2025-04-27T11:23:49');
+INSERT INTO schema_migrations VALUES(20250427135931,'2025-04-27T13:59:50');
+INSERT INTO schema_migrations VALUES(20250428173403,'2025-04-28T17:34:58');
+INSERT INTO schema_migrations VALUES(20250501000000,'2025-04-28T10:59:53');
