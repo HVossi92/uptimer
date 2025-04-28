@@ -7,6 +7,7 @@ defmodule Uptimer.Websites.Website do
     field :status, :string, default: "ok"
     field :address, :string
     field :thumbnail_url, :string
+    field :thumbnail, :boolean, default: false
 
     timestamps(type: :utc_datetime)
   end
@@ -14,7 +15,7 @@ defmodule Uptimer.Websites.Website do
   @doc false
   def changeset(website, attrs) do
     website
-    |> cast(attrs, [:name, :address, :status, :thumbnail_url])
+    |> cast(attrs, [:name, :address, :status, :thumbnail_url, :thumbnail])
     |> validate_required([:name, :address, :status])
   end
 end

@@ -87,8 +87,8 @@ defmodule Uptimer.Websites do
 
     case result do
       {:ok, updated_website} ->
-        # If address was changed, regenerate thumbnail
-        if Map.get(attrs, "address") && website.address != updated_website.address do
+        # If thumbnail was enabled, generate thumbnail
+        if Map.get(attrs, "thumbnail") && website.thumbnail != updated_website.thumbnail do
           Task.start(fn -> generate_and_save_thumbnail(updated_website) end)
         end
 
@@ -133,11 +133,25 @@ defmodule Uptimer.Websites do
   end
 
   @doc """
+  Toggles the thumbnail preference for a website.
+
+  ## Examples
+
+      iex> toggle_thumbnail(website)
+      {:ok, %Website{}}
+  """
+  def toggle_thumbnail(%Website{} = website) do
+    IO.puts("Toggling thumbnail for #{website.address}")
+    update_website(website, %{"thumbnail" => !website.thumbnail})
+  end
+
+  @doc """
   Generates and saves a thumbnail for a website.
   """
   def generate_and_save_thumbnail(%Website{} = website) do
     case Thumbnail.generate_thumbnail(website.address) do
       {:ok, thumbnail_url} ->
+        IO.puts("Thumbnail generated for #{website.address}")
         # Update the website with the new thumbnail URL
         result = update_website(website, %{"thumbnail_url" => thumbnail_url})
 

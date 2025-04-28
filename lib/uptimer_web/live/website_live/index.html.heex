@@ -38,13 +38,68 @@
               <div class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
                 {URI.parse(website.address).host || website.address}
               </div>
+
+              <div
+                id={"preview-status-#{website.id}"}
+                class="ml-auto flex items-center"
+                title={if website.thumbnail, do: "Thumbnail preview", else: "Live preview"}
+              >
+                <div
+                  id={"loading-icon-#{website.id}"}
+                  class="text-gray-400 dark:text-gray-500 hidden"
+                >
+                  <.icon name="hero-arrow-path" class="h-4 w-4 animate-spin" />
+                </div>
+                <div
+                  id={"live-icon-#{website.id}"}
+                  class={"text-green-500 dark:text-green-400 #{if website.thumbnail, do: "hidden", else: ""}"}
+                >
+                  <.icon name="hero-globe-alt" class="h-4 w-4" />
+                </div>
+                <div
+                  id={"thumbnail-icon-#{website.id}"}
+                  class={"text-blue-500 dark:text-blue-400 #{if website.thumbnail, do: "", else: "hidden"}"}
+                >
+                  <.icon name="hero-photo" class="h-4 w-4" />
+                </div>
+                <button
+                  phx-click="toggle_thumbnail"
+                  phx-value-id={website.id}
+                  class="ml-2 px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-xs flex items-center"
+                  title={
+                    if website.thumbnail, do: "Show live preview", else: "Show thumbnail preview"
+                  }
+                >
+                  <.icon
+                    name={if website.thumbnail, do: "hero-globe-alt", else: "hero-photo"}
+                    class="h-3 w-3 mr-1"
+                  />
+                  <span>{if website.thumbnail, do: "Live", else: "Thumb"}</span>
+                </button>
+              </div>
             </div>
             <div class="w-full bg-white dark:bg-gray-600 rounded shadow-sm h-20 overflow-hidden relative">
+              <iframe
+                src={website.address}
+                class="w-full h-full"
+                title={website.name}
+                sandbox="allow-same-origin"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                id={"iframe-#{website.id}"}
+                phx-hook="IframeLoader"
+                data-website-id={website.id}
+                data-use-thumbnail={website.thumbnail}
+                style={"display: #{if website.thumbnail, do: "none", else: "block"};"}
+              >
+              </iframe>
               <img
                 src={website.thumbnail_url || "/images/no-preview.svg"}
                 alt="Website thumbnail"
                 loading="lazy"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover absolute inset-0 thumbnail-debug"
+                id={"thumbnail-#{website.id}"}
+                style={"display: #{if website.thumbnail, do: "block", else: "none"};"}
                 onerror="this.onerror=null; this.src='/images/no-preview.svg';"
               />
             </div>
@@ -126,6 +181,20 @@
               placeholder="https://example.com"
               pattern="^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$"
             />
+          </div>
+          <div class="flex items-center mt-2">
+            <input
+              type="checkbox"
+              id="website-thumbnail"
+              name="website[thumbnail]"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label
+              for="website-thumbnail"
+              class="ml-2 block text-sm text-gray-700 dark:text-gray-200"
+            >
+              Use thumbnail instead of live preview
+            </label>
           </div>
           <div class="flex justify-end pt-4">
             <button

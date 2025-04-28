@@ -48,6 +48,15 @@ defmodule UptimerWeb.WebsiteLive.Index do
   end
 
   @impl true
+  def handle_info({:website_thumbnail_generated, website_id, _thumbnail_url}, socket) do
+    # Get the website by id
+    website = Websites.get_website!(website_id)
+
+    # Update the website in the stream with the new thumbnail
+    {:noreply, stream_insert(socket, :websites, website, at: -1)}
+  end
+
+  @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     website = Websites.get_website!(id)
     {:ok, _} = Websites.delete_website(website)
@@ -56,6 +65,14 @@ defmodule UptimerWeb.WebsiteLive.Index do
     Phoenix.PubSub.unsubscribe(Uptimer.PubSub, "website:thumbnail:#{website.id}")
 
     {:noreply, stream_delete(socket, :websites, website)}
+  end
+
+  @impl true
+  def handle_event("toggle_thumbnail", %{"id" => id}, socket) do
+    website = Websites.get_website!(id)
+    {:ok, updated_website} = Websites.toggle_thumbnail(website)
+
+    {:noreply, stream_insert(socket, :websites, updated_website)}
   end
 
   @impl true
@@ -74,15 +91,6 @@ defmodule UptimerWeb.WebsiteLive.Index do
         {:noreply,
          put_flash(socket, :error, "Error creating website: #{error_to_string(changeset)}")}
     end
-  end
-
-  @impl true
-  def handle_info({:website_thumbnail_generated, website_id, thumbnail_url}, socket) do
-    # Get the website by id
-    website = Websites.get_website!(website_id)
-
-    # Update the website in the stream with the new thumbnail
-    {:noreply, stream_insert(socket, :websites, website, at: -1)}
   end
 
   defp error_to_string(changeset) do

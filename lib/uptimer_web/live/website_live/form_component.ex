@@ -22,6 +22,7 @@ defmodule UptimerWeb.WebsiteLive.FormComponent do
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:address]} type="text" label="Address" />
         <.input field={@form[:status]} type="text" label="Status" />
+        <.input field={@form[:thumbnail]} type="checkbox" label="Use thumbnail instead of iframe" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Website</.button>
         </:actions>

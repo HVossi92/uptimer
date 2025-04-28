@@ -34,14 +34,17 @@
       });
 
       // Timer functionality
-      let seconds = 5;
+      let seconds = 10;
       const timerElement = document.getElementById('timer');
+      const timerMobileElement = document.getElementById('timer-mobile');
 
       function updateTimer() {
-        timerElement.textContent = seconds;
+        if (timerElement) timerElement.textContent = seconds;
+        if (timerMobileElement) timerMobileElement.textContent = seconds;
+        
         if (seconds <= 0) {
           // Reset timer and refresh website previews
-          seconds = 5;
+          seconds = 10;
           refreshWebsites();
         } else {
           seconds--;
@@ -53,15 +56,10 @@
       setInterval(updateTimer, 1000);
 
       function refreshWebsites() {
-        // In a real implementation, this would update the iframes or fetch new status
-        console.log('Refreshing websites...');
-        // For demo purposes, we'll just log this
-        document.querySelectorAll('.bg-gray-50.dark\\:bg-gray-750, .bg-gray-50, .dark\\:bg-gray-750').forEach(el => {
-          const statusElement = el.querySelector('.text-xs');
-          if (statusElement) {
-            statusElement.textContent = 'Last checked: Just now';
-          }
-        });
+        // This is just a placeholder - actual implementation is in app.js
+        if (window.refreshAllWebsites) {
+          window.refreshAllWebsites();
+        }
       }
     </script>
   </body>

@@ -2,8 +2,8 @@
 
 ## Todos:
 
-- [ ] Make sure thumbnails are small
 - [ ] Do use iframes whenever possible to avoid overhead
+- [ ] Make sure thumbnails are small
 - [ ] Limit thumbnails to 4 per free account
 - [ ] User deletion
 - [ ] Make sign-up process nice

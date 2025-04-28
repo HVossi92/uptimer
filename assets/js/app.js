@@ -18,18 +18,121 @@
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
 // Establish Phoenix Socket and LiveView configuration.
-import {Socket} from "phoenix"
-import {LiveSocket} from "phoenix_live_view"
+import { Socket } from "phoenix"
+import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
+
+// Define Hooks
+const Hooks = {}
+
+Hooks.IframeLoader = {
+  mounted() {
+    const iframeEl = this.el;
+    const websiteId = this.el.dataset.websiteId;
+    const thumbnailEl = document.getElementById(`thumbnail-${websiteId}`);
+    const useThumbnail = this.el.dataset.useThumbnail === "true";
+
+    // Debug information about available elements
+    console.log(`[${websiteId}] IframeLoader mounted for: ${iframeEl.src}`);
+    console.log(`[${websiteId}] Thumbnail element:`, thumbnailEl);
+    console.log(`[${websiteId}] Use thumbnail preference:`, useThumbnail);
+    if (thumbnailEl) {
+      console.log(`[${websiteId}] Thumbnail src:`, thumbnailEl.src);
+    }
+
+    // Get icon elements
+    const loadingIcon = document.getElementById(`loading-icon-${websiteId}`);
+    const liveIcon = document.getElementById(`live-icon-${websiteId}`);
+    const thumbnailIcon = document.getElementById(`thumbnail-icon-${websiteId}`);
+    const previewStatus = document.getElementById(`preview-status-${websiteId}`);
+
+    // Track if we've already handled this iframe
+    let iframeHandled = false;
+
+    // Functions to update status icons
+    const showLiveIcon = () => {
+      if (loadingIcon) loadingIcon.classList.add('hidden');
+      // if (liveIcon) liveIcon.classList.remove('hidden');
+      // if (thumbnailIcon) thumbnailIcon.classList.add('hidden');
+      if (previewStatus) previewStatus.setAttribute('title', 'Live preview');
+    };
+
+    const showThumbnailIcon = () => {
+      if (loadingIcon) loadingIcon.classList.add('hidden');
+      // if (liveIcon) liveIcon.classList.add('hidden');
+      // if (thumbnailIcon) thumbnailIcon.classList.remove('hidden');
+      if (previewStatus) previewStatus.setAttribute('title', 'Thumbnail preview');
+    };
+
+    // Function to switch to thumbnail view
+    const showThumbnail = () => {
+      if (iframeHandled) return;
+      iframeHandled = true;
+
+      console.log(`[${websiteId}] Showing thumbnail view`);
+      iframeEl.style.display = 'none';
+      if (thumbnailEl) {
+        // thumbnailEl.style.display = 'block';
+        showThumbnailIcon();
+      }
+    };
+
+    // Function to show iframe
+    const showIframe = () => {
+      if (iframeHandled) return;
+      iframeHandled = true;
+
+      console.log(`[${websiteId}] Showing iframe view`);
+      iframeEl.style.display = 'block';
+      if (thumbnailEl) {
+        // thumbnailEl.style.display = 'none';
+      }
+      showLiveIcon();
+    };
+
+    // If user preference is to use thumbnail, show it
+    if (useThumbnail && thumbnailEl) {
+      console.log(`[${websiteId}] User preference is to use thumbnail view`);
+      showThumbnail();
+      return;
+    }
+
+    // Otherwise start with iframe visible
+    iframeEl.style.display = 'block';
+    if (thumbnailEl) {
+      // thumbnailEl.style.display = 'none';
+    }
+
+    // Handle iframe load and always show iframe regardless of CORS
+    iframeEl.addEventListener('load', () => {
+      showIframe();
+    });
+
+    // Handle iframe error but still show iframe
+    iframeEl.addEventListener('error', () => {
+      console.log(`[${websiteId}] Error loading iframe, but still showing it`);
+      showIframe();
+    });
+
+    // Ensure iframe is shown if not handled yet
+    setTimeout(() => {
+      if (!iframeHandled) {
+        console.log(`[${websiteId}] Timeout reached, ensuring iframe is shown`);
+        showIframe();
+      }
+    }, 2000);
+  }
+};
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
+  params: { _csrf_token: csrfToken },
+  hooks: Hooks
 })
 
 // Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
+topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
@@ -41,4 +144,51 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+// Function to refresh all website previews (iframes and thumbnails)
+function refreshAllWebsites() {
+  console.log('Refreshing all website previews...');
+
+  // Update all iframes by reloading their source
+  document.querySelectorAll('iframe[data-website-id]').forEach(iframe => {
+    const websiteId = iframe.dataset.websiteId;
+    const thumbnailEl = document.getElementById(`thumbnail-${websiteId}`);
+    const useThumbnail = iframe.dataset.useThumbnail === "true";
+
+    console.log(`[${websiteId}] Refreshing preview...`);
+
+    // If using iframe (not thumbnail), refresh the iframe
+    if (!useThumbnail) {
+      // Save current src
+      const currentSrc = iframe.src;
+
+      // Force reload by setting to empty and back to original
+      iframe.src = '';
+      setTimeout(() => {
+        iframe.src = currentSrc;
+      }, 50);
+
+      console.log(`[${websiteId}] Refreshed iframe: ${currentSrc}`);
+    }
+
+    // If using thumbnail, refresh it by forcing a reload
+    if (useThumbnail && thumbnailEl) {
+      // For thumbnails, add a cache-busting parameter
+      const timestamp = new Date().getTime();
+      const thumbnailSrc = thumbnailEl.src.split('?')[0]; // Remove any existing query params
+      thumbnailEl.src = `${thumbnailSrc}?t=${timestamp}`;
+
+      console.log(`[${websiteId}] Refreshed thumbnail with timestamp: ${timestamp}`);
+    }
+
+    // Update the "Last checked" text if it exists
+    const statusElement = document.querySelector(`.website-card[data-website-id="${websiteId}"] .text-xs`);
+    if (statusElement) {
+      statusElement.textContent = 'Last checked: Just now';
+    }
+  });
+}
+
+// Expose the refresh function to the window object so it can be called from the timer
+window.refreshAllWebsites = refreshAllWebsites;
 
