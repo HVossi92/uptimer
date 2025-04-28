@@ -8,19 +8,115 @@
     <div class="w-full max-w-xl mx-auto p-8 flex flex-col justify-between min-h-screen">
       <!-- Header Section -->
       <div class="flex-1 flex flex-col justify-center items-center text-center">
-        <div>
-          <h2 class="text-4xl sm:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-br from-gray-200 to-gray-600">
-            Join Uptimer Today
+        <div class="mb-2">
+          <h2 class="text-4xl sm:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-br from-gray-200 to-gray-600 pb-1">
+            Never Miss a <span class="text-blue-400">Downtime</span> Again
           </h2>
         </div>
         <div>
-          <p class="text-lg sm:text-xl mb-8 text-gray-300">
-            Sign up now to monitor your websites and get notified when they go down.
+          <p class="text-lg sm:text-xl mb-6 text-gray-300 max-w-md">
+            Monitor all your websites and web apps in one place at a single glance. See your sites in near-real-time; no more digging through logs or cryptic status codes.
           </p>
         </div>
         
+<!-- App Screenshot -->
+        <div class="w-full mb-8 relative" id="screenshot-container">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#000000] to-transparent z-10 h-[85%] pointer-events-none rounded-lg">
+          </div>
+          <div
+            class="relative overflow-hidden rounded-lg border border-blue-500/30 shadow-2xl transform hover:scale-[1.03] transition-all duration-300 cursor-pointer"
+            id="app-screenshot"
+          >
+            <img
+              src="/images/app-screenshot.png"
+              alt="Uptimer dashboard showing monitored websites"
+              class="w-full object-cover"
+            />
+            <div class="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-blue-900/60 to-transparent rounded-t-lg">
+            </div>
+            <div class="absolute inset-0 bg-blue-500/0 hover:bg-blue-500/10 transition-colors duration-300 flex items-center justify-center">
+              <div class="bg-white/10 rounded-full p-3 opacity-0 transform scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300">
+                <.icon name="hero-magnifying-glass-plus" class="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="text-xs text-center text-gray-400 mt-2">
+            Uptimer dashboard showing multiple monitored websites
+            <span class="text-blue-400">(click to enlarge)</span>
+          </div>
+        </div>
+        
+<!-- Screenshot Modal/Lightbox -->
+        <div
+          id="screenshot-modal"
+          class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4"
+        >
+          <div class="relative max-w-6xl w-full">
+            <button
+              id="close-modal"
+              class="absolute -top-12 right-0 text-white hover:text-blue-400"
+            >
+              <.icon name="hero-x-mark" class="w-8 h-8" />
+            </button>
+            <img
+              src="/images/app-screenshot.png"
+              alt="Uptimer dashboard showing monitored websites"
+              class="w-full object-contain max-h-[85vh] rounded-lg"
+            />
+          </div>
+        </div>
+        
+<!-- Free Version Features -->
+        <div class="w-full bg-gradient-to-r from-blue-900/40 to-indigo-900/40 rounded-lg p-5 mb-8 backdrop-blur-sm border border-blue-500/20 shadow-lg">
+          <div class="flex items-center mb-4">
+            <div class="bg-blue-600/30 rounded-full p-1 mr-2">
+              <.icon name="hero-sparkles" class="w-5 h-5 text-blue-300" />
+            </div>
+            <h3 class="text-xl font-bold text-blue-300">Start Free Today</h3>
+          </div>
+
+          <ul class="text-gray-200 text-left space-y-4">
+            <li class="flex items-start">
+              <div class="bg-green-500/20 rounded-full p-1 mr-3 mt-0.5">
+                <.icon name="hero-check" class="w-4 h-4 text-green-400" />
+              </div>
+              <div>
+                <span class="font-medium text-white">Monitor 32 websites</span>
+                <p class="text-sm text-gray-300 mt-0.5">
+                  Real-time iframe monitoring for sites allowing cross-origin access
+                </p>
+              </div>
+            </li>
+            <li class="flex items-start">
+              <div class="bg-green-500/20 rounded-full p-1 mr-3 mt-0.5">
+                <.icon name="hero-check" class="w-4 h-4 text-green-400" />
+              </div>
+              <div>
+                <span class="font-medium text-white">Universal fallback system</span>
+                <p class="text-sm text-gray-300 mt-0.5">
+                  Auto-generated thumbnails for up to 8 sites, even when cross-origin is restricted
+                </p>
+              </div>
+            </li>
+            <li class="flex items-start">
+              <div class="bg-green-500/20 rounded-full p-1 mr-3 mt-0.5">
+                <.icon name="hero-check" class="w-4 h-4 text-green-400" />
+              </div>
+              <div>
+                <span class="font-medium text-white">Responsive updates</span>
+                <p class="text-sm text-gray-300 mt-0.5">
+                  Near real-time monitoring with status refreshes every 10 seconds
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        
 <!-- Registration Form -->
-        <div class="w-full space-y-4 mb-8 bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10">
+        <div class="w-full space-y-4 mb-8 bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 shadow-lg">
+          <h3 class="text-lg font-medium text-center text-white mb-2">
+            Create Your Free Account
+          </h3>
           <.form
             for={@form}
             id="registration_form"
@@ -98,11 +194,14 @@
               <button
                 type="submit"
                 phx-disable-with="Creating account..."
-                class="flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                class="flex w-full justify-center rounded-md bg-blue-600 px-3 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-all duration-200 transform hover:scale-[1.02]"
               >
-                Create Account
+                Start Monitoring For Free
               </button>
             </div>
+            <p class="text-center text-xs text-gray-400 mt-2">
+              No credit card required. Set up in minutes.
+            </p>
           </.form>
         </div>
       </div>
@@ -145,4 +244,43 @@
   } else {
     html.classList.remove('dark');
   }
+
+  // Screenshot modal functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const screenshotThumbnail = document.getElementById('app-screenshot');
+    const modal = document.getElementById('screenshot-modal');
+    const closeButton = document.getElementById('close-modal');
+    
+    if (screenshotThumbnail && modal && closeButton) {
+      // Open modal when clicking the screenshot
+      screenshotThumbnail.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+      });
+      
+      // Close modal when clicking the close button
+      closeButton.addEventListener('click', closeModal);
+      
+      // Close modal when clicking outside the image
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+      
+      // Close modal with Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+      
+      function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = ''; // Restore scrolling
+      }
+    }
+  });
 </script>
