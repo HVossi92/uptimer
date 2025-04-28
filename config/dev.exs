@@ -55,7 +55,8 @@ config :uptimer, UptimerWeb.Endpoint,
     patterns: [
       ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/uptimer_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/uptimer_web/(controllers|live|components)/.*(ex|heex)$",
+      ~r"lib/uptimer/.*(ex)$"
     ]
   ]
 

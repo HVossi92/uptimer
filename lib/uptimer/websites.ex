@@ -51,6 +51,13 @@ defmodule Uptimer.Websites do
 
   """
   def create_website(attrs \\ %{}) do
+    {:ok, response} =
+      Finch.build(:get, attrs["address"])
+      |> add_browser_headers()
+      |> Finch.request(Uptimer.Finch)
+
+    attrs = Map.put(attrs, "status", Integer.to_string(response.status))
+
     result =
       %Website{}
       |> Website.changeset(attrs)
@@ -80,6 +87,14 @@ defmodule Uptimer.Websites do
 
   """
   def update_website(%Website{} = website, attrs) do
+    {:ok, response} =
+      Finch.build(:get, website.address)
+      |> add_browser_headers()
+      |> Finch.request(Uptimer.Finch)
+
+    IO.inspect(response)
+    attrs = Map.put(attrs, "status", Integer.to_string(response.status))
+
     result =
       website
       |> Website.changeset(attrs)
@@ -141,8 +156,9 @@ defmodule Uptimer.Websites do
       {:ok, %Website{}}
   """
   def toggle_thumbnail(%Website{} = website) do
-    IO.puts("Toggling thumbnail for #{website.address}")
-    update_website(website, %{"thumbnail" => !website.thumbnail})
+    update_website(website, %{
+      "thumbnail" => !website.thumbnail
+    })
   end
 
   @doc """
@@ -165,8 +181,52 @@ defmodule Uptimer.Websites do
         result
 
       {:error, _reason} ->
-        # Just log error and continue (already logged in Thumbnail module)
-        {:error, :thumbnail_generation_failed}
+        # Delete any existing thumbnails for this URL
+        Thumbnail.delete_thumbnails_for_url(website.address)
+
+        # Set the thumbnail_url to nil if thumbnail is enabled
+        if website.thumbnail do
+          result = update_website(website, %{"thumbnail_url" => nil})
+
+          # Broadcast that we're using the default "no preview" image
+          Phoenix.PubSub.broadcast(
+            Uptimer.PubSub,
+            "website:thumbnail:#{website.id}",
+            {:website_thumbnail_generated, website.id, nil}
+          )
+
+          result
+        else
+          # Just log error and continue
+          {:error, :thumbnail_generation_failed}
+        end
     end
+  end
+
+  # Add browser-like headers to help with sites using bot protection
+  defp add_browser_headers(request) do
+    url =
+      "#{request.scheme}://#{request.host}#{if request.port not in [80, 443], do: ":#{request.port}", else: ""}#{request.path}"
+
+    Finch.build(
+      request.method,
+      url,
+      [
+        {"User-Agent",
+         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"},
+        {"Accept",
+         "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"},
+        {"Accept-Language", "en-US,en;q=0.5"},
+        {"Accept-Encoding", "gzip, deflate, br"},
+        {"Connection", "keep-alive"},
+        {"Upgrade-Insecure-Requests", "1"},
+        {"Sec-Fetch-Dest", "document"},
+        {"Sec-Fetch-Mode", "navigate"},
+        {"Sec-Fetch-Site", "none"},
+        {"Sec-Fetch-User", "?1"},
+        {"Cache-Control", "max-age=0"}
+      ],
+      request.body
+    )
   end
 end

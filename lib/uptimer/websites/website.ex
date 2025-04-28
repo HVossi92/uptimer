@@ -4,7 +4,7 @@ defmodule Uptimer.Websites.Website do
 
   schema "websites" do
     field :name, :string
-    field :status, :string, default: "ok"
+    field :status, :string, default: "200"
     field :address, :string
     field :thumbnail_url, :string
     field :thumbnail, :boolean, default: false
