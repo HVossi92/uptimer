@@ -1,25 +1,25 @@
 <div class="h-screen flex flex-col">
-  <header class="bg-white dark:bg-gray-800 shadow-md py-4 px-4 sm:px-6 flex-none">
+  <header class="bg-white/80 backdrop-blur-sm dark:bg-gray-800/20 shadow-lg py-4 px-4 sm:px-6 flex-none border-b border-gray-200/50 dark:border-white/10">
     <div class="container mx-auto">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <!-- Left Section: Logo and Timer -->
         <div class="flex items-center justify-between sm:justify-start">
           <div class="flex items-center">
-            <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
+            <div class="bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 p-2 rounded-xl mr-3">
               <.icon name="hero-chart-bar-solid" class="h-5 w-5" />
             </div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Uptimer</h1>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Uptimer</h1>
           </div>
           
-          <!-- Timer - Hidden on mobile, shown on sm and up -->
-          <div class="hidden sm:flex bg-gray-100 dark:bg-gray-700 rounded-lg shadow p-2 sm:p-3 items-center ml-6">
+<!-- Timer - Hidden on mobile, shown on sm and up -->
+          <div class="hidden sm:flex bg-gray-100 dark:bg-black/20 rounded-lg shadow-inner p-2 sm:p-3 items-center ml-6">
             <span class="text-gray-600 dark:text-gray-300 mr-2 text-sm">Next refresh in:</span>
             <span id="timer" class="text-blue-600 dark:text-blue-400 font-bold">5</span>
             <span class="text-gray-600 dark:text-gray-300 ml-1 text-sm">seconds</span>
           </div>
         </div>
-
-        <!-- Right Section: User Auth and Dark Mode -->
+        
+<!-- Right Section: User Auth and Dark Mode -->
         <div class="flex items-center justify-between sm:justify-end">
           <!-- User Authentication -->
           <ul class="flex items-center gap-3 sm:gap-4 text-sm">
@@ -31,9 +31,11 @@
               <li>
                 <.link
                   href={~p"/users/settings"}
-                  class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center"
+                  class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center transition-colors"
                 >
-                  <span class="mr-1"><.icon name="hero-cog-6-tooth-solid" class="h-4 w-4" /></span>
+                  <span class="mr-1">
+                    <.icon name="hero-cog-6-tooth-solid" class="h-4 w-4" />
+                  </span>
                   <span class="hidden sm:inline">Settings</span>
                 </.link>
               </li>
@@ -41,9 +43,11 @@
                 <.link
                   href={~p"/users/log_out"}
                   method="delete"
-                  class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center"
+                  class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center transition-colors"
                 >
-                  <span class="mr-1"><.icon name="hero-arrow-right-on-rectangle-solid" class="h-4 w-4" /></span>
+                  <span class="mr-1">
+                    <.icon name="hero-arrow-right-on-rectangle-solid" class="h-4 w-4" />
+                  </span>
                   <span class="hidden sm:inline">Log out</span>
                 </.link>
               </li>
@@ -51,7 +55,7 @@
               <li>
                 <.link
                   href={~p"/users/register"}
-                  class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center"
+                  class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center transition-colors"
                 >
                   <span class="mr-1"><.icon name="hero-user-plus-solid" class="h-4 w-4" /></span>
                   <span class="hidden sm:inline">Register</span>
@@ -60,18 +64,22 @@
               <li>
                 <.link
                   href={~p"/users/log_in"}
-                  class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center"
+                  class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center transition-colors"
                 >
-                  <span class="mr-1"><.icon name="hero-arrow-left-on-rectangle-solid" class="h-4 w-4" /></span>
+                  <span class="mr-1">
+                    <.icon name="hero-arrow-left-on-rectangle-solid" class="h-4 w-4" />
+                  </span>
                   <span class="hidden sm:inline">Log in</span>
                 </.link>
               </li>
             <% end %>
           </ul>
-
-          <!-- Dark Mode Toggle -->
-          <button id="dark-mode-toggle"
-            class="ml-4 focus:outline-none focus:ring-0 focus:ring-offset-0 outline-none ring-0 opacity-60 hover:opacity-100 hover:scale-110 transition-all duration-150">
+          
+<!-- Dark Mode Toggle -->
+          <button
+            id="dark-mode-toggle"
+            class="ml-4 focus:outline-none focus:ring-0 focus:ring-offset-0 outline-none ring-0 opacity-60 hover:opacity-100 hover:scale-110 transition-all duration-150"
+          >
             <span class="block dark:hidden">
               <.icon name="hero-sun" class="h-5 w-5 text-orange-500" />
             </span>
@@ -81,10 +89,10 @@
           </button>
         </div>
       </div>
-
-      <!-- Timer for mobile only -->
+      
+<!-- Timer for mobile only -->
       <div class="sm:hidden mt-4">
-        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg shadow p-2 flex items-center justify-center">
+        <div class="bg-gray-100 dark:bg-black/20 rounded-lg shadow-inner p-2 flex items-center justify-center">
           <span class="text-gray-600 dark:text-gray-300 mr-2 text-sm">Next refresh in:</span>
           <span id="timer-mobile" class="text-blue-600 dark:text-blue-400 font-bold">5</span>
           <span class="text-gray-600 dark:text-gray-300 ml-1 text-sm">seconds</span>
@@ -93,20 +101,26 @@
     </div>
   </header>
 
-  <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+  <main class="flex-1 overflow-y-auto bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/60 dark:to-black/40">
     <.flash_group flash={@flash} />
     {@inner_content}
   </main>
 
-  <footer class="bg-white dark:bg-gray-800 shadow-inner py-4 px-4 sm:px-6 flex-none">
+  <footer class="bg-white/80 backdrop-blur-sm dark:bg-gray-800/20 shadow-inner py-4 px-4 sm:px-6 flex-none border-t border-gray-200/50 dark:border-white/10">
     <div class="container mx-auto">
       <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
         <div class="flex flex-wrap justify-center sm:justify-end gap-4">
-          <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm">
+          <a
+            href="#"
+            class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors"
+          >
             <.icon name="hero-question-mark-circle-solid" class="h-4 w-4 mr-1 inline" />
             <span>Privacy Policy</span>
           </a>
-          <a href={~p"/users/settings"} class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm">
+          <a
+            href={~p"/users/settings"}
+            class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors"
+          >
             <.icon name="hero-cog-6-tooth-solid" class="h-4 w-4 mr-1 inline" />
             <span>Terms of Service</span>
           </a>

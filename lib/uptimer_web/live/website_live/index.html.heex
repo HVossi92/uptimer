@@ -1,230 +1,228 @@
-<div class="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
-  <!-- Website Grid -->
-  <div
-    id="websites-grid"
-    phx-update="stream"
-    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
-  >
-    <%= for {dom_id, website} <- @streams.websites do %>
-      <!-- Website Card -->
+<!-- Main Content -->
+<div
+  class="min-h-screen"
+  style="background: radial-gradient(circle at center, rgba(30, 64, 175, 0.6), rgba(0, 0, 0, 0.6));"
+>
+  <div class="bg-pattern"></div>
+  <div class="content w-full py-8">
+    <div class="container mx-auto px-4 sm:px-6">
+      <!-- Website Grid -->
       <div
-        id={dom_id}
-        class={"bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border-t-4 #{if (website.status) >= 400, do: "border-red-500", else: "border-green-500"}"}
+        id="websites-grid"
+        phx-update="stream"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >
-        <div class="p-3 sm:p-4">
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="font-bold text-gray-700 dark:text-gray-200 text-sm sm:text-base truncate">
-              {website.name}
-            </h3>
-            <span class={"px-2 py-1 text-xs rounded-full ml-2 whitespace-nowrap #{if (website.status) >= 400, do: "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200", else: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"}"}>
-              {website.status}
-            </span>
+        <%= for {dom_id, website} <- @streams.websites do %>
+          <!-- Website Card -->
+          <div
+            id={dom_id}
+            class={"group bg-white/10 backdrop-blur-sm dark:bg-gray-800/30 rounded-xl shadow-xl overflow-hidden border-t-4 #{if (website.status) >= 400, do: "border-red-500", else: "border-green-500"} hover:transform hover:scale-[1.02] transition-all duration-300"}
+          >
+            <div class="p-4 sm:p-5">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-gray-100 dark:text-gray-200 text-base sm:text-lg truncate">
+                  {website.name}
+                </h3>
+                <span class={"px-3 py-1 text-xs font-medium rounded-full ml-2 whitespace-nowrap #{if (website.status) >= 400, do: "bg-red-500/20 text-red-200", else: "bg-green-500/20 text-green-200"}"}>
+                  {website.status}
+                </span>
+              </div>
+              <p class="text-gray-300 dark:text-gray-400 text-sm mb-3 truncate">
+                {website.address}
+              </p>
+            </div>
+            <div class="h-40 sm:h-48 bg-black/20 dark:bg-gray-900/50 relative">
+              <div class="w-full h-full flex flex-col items-center justify-center p-4">
+                <div class="w-full flex items-center mb-3">
+                  <div class="w-8 h-8 mr-3 flex-shrink-0 bg-white/10 rounded-full p-1">
+                    <img
+                      src={"https://www.google.com/s2/favicons?domain=#{website.address}&sz=64"}
+                      alt="Favicon"
+                      class="w-full h-full rounded-full"
+                      onerror="this.onerror=null; this.src='/images/globe-icon.svg';"
+                    />
+                  </div>
+                  <div class="truncate text-base font-medium text-gray-200">
+                    {URI.parse(website.address).host || website.address}
+                  </div>
+
+                  <div
+                    id={"preview-status-#{website.id}"}
+                    class="ml-auto flex items-center gap-2"
+                    title={if website.thumbnail, do: "Thumbnail preview", else: "Live preview"}
+                  >
+                    <div
+                      id={"loading-icon-#{website.id}"}
+                      class="text-gray-400 dark:text-gray-500 hidden"
+                    >
+                      <.icon name="hero-arrow-path" class="h-4 w-4 animate-spin" />
+                    </div>
+                    <div
+                      id={"live-icon-#{website.id}"}
+                      class={"text-green-400 #{if website.thumbnail, do: "hidden", else: ""}"}
+                    >
+                      <.icon name="hero-globe-alt" class="h-4 w-4" />
+                    </div>
+                    <div
+                      id={"thumbnail-icon-#{website.id}"}
+                      class={"text-blue-400 #{if website.thumbnail, do: "", else: "hidden"}"}
+                    >
+                      <.icon name="hero-photo" class="h-4 w-4" />
+                    </div>
+                    <button
+                      phx-click="toggle_thumbnail"
+                      phx-value-id={website.id}
+                      class="px-3 py-1.5 rounded-lg bg-white/10 text-gray-200 hover:bg-white/20 transition-colors text-xs flex items-center gap-1.5"
+                      title={
+                        if website.thumbnail,
+                          do: "Show live preview",
+                          else: "Show thumbnail preview"
+                      }
+                    >
+                      <.icon
+                        name={if website.thumbnail, do: "hero-globe-alt", else: "hero-photo"}
+                        class="h-3.5 w-3.5"
+                      />
+                      <span>{if website.thumbnail, do: "Live", else: "Thumb"}</span>
+                    </button>
+                    <button
+                      phx-click="refresh_thumbnail"
+                      phx-value-id={website.id}
+                      class="px-3 py-1.5 rounded-lg bg-white/10 text-gray-200 hover:bg-white/20 transition-colors text-xs flex items-center gap-1.5"
+                      style="display: none"
+                    >
+                      <.icon name="hero-refresh" class="h-3.5 w-3.5" />
+                      <span>Refresh</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="w-full bg-black/30 dark:bg-gray-900/50 rounded-xl shadow-sm h-24 overflow-hidden relative">
+                  <iframe
+                    src={website.address}
+                    class="w-full h-full"
+                    title={website.name}
+                    sandbox="allow-same-origin"
+                    loading="lazy"
+                    referrerpolicy="no-referrer"
+                    id={"iframe-#{website.id}"}
+                    phx-hook="IframeLoader"
+                    data-website-id={website.id}
+                    data-use-thumbnail={website.thumbnail}
+                    style={"display: #{if website.thumbnail, do: "none", else: "block"};"}
+                  >
+                  </iframe>
+                  <img
+                    src={
+                      (website.thumbnail_url &&
+                         "#{website.thumbnail_url}?t=#{System.system_time(:millisecond)}") ||
+                        "/images/no-preview.svg"
+                    }
+                    alt="Website thumbnail"
+                    loading="lazy"
+                    class="w-full h-full object-cover absolute inset-0 thumbnail-debug"
+                    id={"thumbnail-#{website.id}"}
+                    style={"display: #{if website.thumbnail, do: "block", else: "none"};"}
+                    onerror="this.onerror=null; this.src='/images/no-preview.svg';"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="p-4 bg-black/20 dark:bg-gray-900/30 flex justify-between items-center">
+              <span class="text-sm text-gray-300 dark:text-gray-400 truncate">
+                Last checked: Just now
+              </span>
+              <button
+                class="text-gray-400 hover:text-red-400 focus:outline-none transition-colors ml-2"
+                phx-click="delete"
+                phx-value-id={website.id}
+                data-confirm="Are you sure you want to delete this website?"
+              >
+                <.icon name="hero-trash" class="h-5 w-5" />
+              </button>
+            </div>
           </div>
-          <p class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mb-2 truncate">
-            {website.address}
-          </p>
-        </div>
-        <div class="h-32 sm:h-40 bg-gray-200 dark:bg-gray-700 relative">
-          <div class="w-full h-full flex flex-col items-center justify-center p-3">
-            <div class="w-full flex items-center mb-2">
-              <div class="w-6 h-6 mr-2 flex-shrink-0">
-                <img
-                  src={"https://www.google.com/s2/favicons?domain=#{website.address}&sz=64"}
-                  alt="Favicon"
-                  class="w-full h-full"
-                  onerror="this.onerror=null; this.src='/images/globe-icon.svg';"
+        <% end %>
+        
+<!-- Add New Website Card -->
+        <div
+          id="add-card"
+          class="group bg-white/5 backdrop-blur-sm dark:bg-gray-800/20 rounded-xl border-2 border-white/10 dark:border-gray-600/30 flex flex-col items-center justify-center h-full min-h-[200px] transition-all duration-300 hover:bg-white/10 hover:border-white/20 cursor-pointer"
+          phx-click={JS.show(to: "#website-form")}
+          phx-click-away={JS.hide(to: "#website-form")}
+        >
+          <div class="p-8 text-center" id="add-card-content">
+            <div class="w-14 h-14 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+              <.icon name="hero-plus" class="h-7 w-7 text-blue-400" />
+            </div>
+            <h3 class="font-bold text-gray-200 text-lg mb-2">
+              Add New Website
+            </h3>
+            <p class="text-gray-400 text-sm">Monitor another website</p>
+          </div>
+
+          <div
+            id="website-form"
+            class="absolute inset-0 w-full h-full p-6 hidden bg-white/10 backdrop-blur-md rounded-xl border border-white/20"
+          >
+            <.form for={%{}} phx-submit="save" class="space-y-4">
+              <div>
+                <label for="website-name" class="block text-sm font-medium text-gray-200">
+                  Website Name
+                </label>
+                <input
+                  type="text"
+                  name="website[name]"
+                  required
+                  class="mt-2 block w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-gray-400
+                    focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50
+                    disabled:bg-gray-800/50 disabled:border-gray-700"
+                  placeholder="My Website"
                 />
               </div>
-              <div class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
-                {URI.parse(website.address).host || website.address}
+              <div>
+                <label for="website-url" class="block text-sm font-medium text-gray-200">
+                  URL or IP Address
+                </label>
+                <input
+                  type="text"
+                  name="website[address]"
+                  required
+                  class="mt-2 block w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-gray-400
+                    focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50
+                    disabled:bg-gray-800/50 disabled:border-gray-700"
+                  placeholder="https://example.com"
+                  pattern="^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$"
+                />
               </div>
-
-              <div
-                id={"preview-status-#{website.id}"}
-                class="ml-auto flex items-center"
-                title={if website.thumbnail, do: "Thumbnail preview", else: "Live preview"}
-              >
-                <div
-                  id={"loading-icon-#{website.id}"}
-                  class="text-gray-400 dark:text-gray-500 hidden"
-                >
-                  <.icon name="hero-arrow-path" class="h-4 w-4 animate-spin" />
-                </div>
-                <div
-                  id={"live-icon-#{website.id}"}
-                  class={"text-green-500 dark:text-green-400 #{if website.thumbnail, do: "hidden", else: ""}"}
-                >
-                  <.icon name="hero-globe-alt" class="h-4 w-4" />
-                </div>
-                <div
-                  id={"thumbnail-icon-#{website.id}"}
-                  class={"text-blue-500 dark:text-blue-400 #{if website.thumbnail, do: "", else: "hidden"}"}
-                >
-                  <.icon name="hero-photo" class="h-4 w-4" />
-                </div>
+              <div class="flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  id="website-thumbnail"
+                  name="website[thumbnail]"
+                  class="h-4 w-4 bg-white/10 border-white/20 rounded text-blue-500 focus:ring-blue-500/50"
+                />
+                <label for="website-thumbnail" class="ml-2 block text-sm text-gray-300">
+                  Use thumbnail instead of live preview
+                </label>
+              </div>
+              <div class="flex justify-end pt-4 gap-3">
                 <button
-                  phx-click="toggle_thumbnail"
-                  phx-value-id={website.id}
-                  class="ml-2 px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-xs flex items-center"
-                  title={
-                    if website.thumbnail, do: "Show live preview", else: "Show thumbnail preview"
-                  }
+                  type="button"
+                  class="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white focus:outline-none transition-colors"
+                  phx-click={JS.hide(to: "#website-form")}
                 >
-                  <.icon
-                    name={if website.thumbnail, do: "hero-globe-alt", else: "hero-photo"}
-                    class="h-3 w-3 mr-1"
-                  />
-                  <span>{if website.thumbnail, do: "Live", else: "Thumb"}</span>
+                  Cancel
                 </button>
                 <button
-                  phx-click="refresh_thumbnail"
-                  phx-value-id={website.id}
-                  class="ml-2 px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-xs flex items-center"
-                  style="display: none"
+                  type="submit"
+                  class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
-                  <.icon name="hero-refresh" class="h-3 w-3 mr-1" />
-                  <span>Refresh</span>
+                  Add Website
                 </button>
               </div>
-            </div>
-            <div class="w-full bg-white dark:bg-gray-600 rounded shadow-sm h-20 overflow-hidden relative">
-              <iframe
-                src={website.address}
-                class="w-full h-full"
-                title={website.name}
-                sandbox="allow-same-origin"
-                loading="lazy"
-                referrerpolicy="no-referrer"
-                id={"iframe-#{website.id}"}
-                phx-hook="IframeLoader"
-                data-website-id={website.id}
-                data-use-thumbnail={website.thumbnail}
-                style={"display: #{if website.thumbnail, do: "none", else: "block"};"}
-              >
-              </iframe>
-              <img
-                src={
-                  (website.thumbnail_url &&
-                     "#{website.thumbnail_url}?t=#{System.system_time(:millisecond)}") ||
-                    "/images/no-preview.svg"
-                }
-                alt="Website thumbnail"
-                loading="lazy"
-                class="w-full h-full object-cover absolute inset-0 thumbnail-debug"
-                id={"thumbnail-#{website.id}"}
-                style={"display: #{if website.thumbnail, do: "block", else: "none"};"}
-                onerror="this.onerror=null; this.src='/images/no-preview.svg';"
-              />
-            </div>
+            </.form>
           </div>
         </div>
-        <div class="p-2 sm:p-3 bg-gray-50 dark:bg-gray-750 flex justify-between items-center">
-          <span class="text-xs text-gray-500 dark:text-gray-400 truncate">
-            Last checked: Just now
-          </span>
-          <button
-            class="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 focus:outline-none ml-2"
-            phx-click="delete"
-            phx-value-id={website.id}
-            data-confirm="Are you sure you want to delete this website?"
-          >
-            <.icon name="hero-trash" class="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    <% end %>
-    
-<!-- Add New Website Card -->
-    <div
-      id="add-card"
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border-dashed border-2 border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center h-full min-h-[200px] transition-colors"
-      phx-click={JS.show(to: "#website-form")}
-      phx-click-away={JS.hide(to: "#website-form")}
-    >
-      <div class="p-6 sm:p-8 text-center" id="add-card-content">
-        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-          <.icon name="hero-plus" class="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
-        </div>
-        <h3 class="font-bold text-gray-700 dark:text-gray-200 text-sm sm:text-base mb-1">
-          Add New Website
-        </h3>
-        <p class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">Monitor another website</p>
-      </div>
-
-      <div
-        id="website-form"
-        class="w-full p-4 sm:p-6 hidden bg-white dark:bg-gray-800 shadow-lg rounded-lg"
-      >
-        <.form for={%{}} phx-submit="save" class="space-y-4">
-          <div>
-            <label
-              for="website-name"
-              class="block text-sm font-medium text-gray-700 dark:text-gray-200"
-            >
-              Website Name
-            </label>
-            <input
-              type="text"
-              name="website[name]"
-              required
-              class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm shadow-sm placeholder-gray-400 dark:placeholder-gray-500
-                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-                disabled:bg-gray-50 disabled:text-gray-500 disabled:border-gray-200 disabled:shadow-none
-                invalid:border-red-500 invalid:text-red-600
-                focus:invalid:border-red-500 focus:invalid:ring-red-500 dark:text-white"
-              placeholder="My Website"
-            />
-          </div>
-          <div>
-            <label
-              for="website-url"
-              class="block text-sm font-medium text-gray-700 dark:text-gray-200"
-            >
-              URL or IP Address
-            </label>
-            <input
-              type="text"
-              name="website[address]"
-              required
-              class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm shadow-sm placeholder-gray-400 dark:placeholder-gray-500
-                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-                disabled:bg-gray-50 disabled:text-gray-500 disabled:border-gray-200 disabled:shadow-none
-                invalid:border-red-500 invalid:text-red-600
-                focus:invalid:border-red-500 focus:invalid:ring-red-500 dark:text-white"
-              placeholder="https://example.com"
-              pattern="^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$"
-            />
-          </div>
-          <div class="flex items-center mt-2">
-            <input
-              type="checkbox"
-              id="website-thumbnail"
-              name="website[thumbnail]"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label
-              for="website-thumbnail"
-              class="ml-2 block text-sm text-gray-700 dark:text-gray-200"
-            >
-              Use thumbnail instead of live preview
-            </label>
-          </div>
-          <div class="flex justify-end pt-4">
-            <button
-              type="button"
-              class="mr-2 px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400 focus:outline-none"
-              phx-click={JS.hide(to: "#website-form")}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="px-3 sm:px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Add Website
-            </button>
-          </div>
-        </.form>
       </div>
     </div>
   </div>
