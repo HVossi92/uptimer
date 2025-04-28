@@ -92,7 +92,6 @@ defmodule Uptimer.Websites do
       |> add_browser_headers()
       |> Finch.request(Uptimer.Finch)
 
-    IO.inspect(response)
     attrs = Map.put(attrs, "status", Integer.to_string(response.status))
 
     result =
@@ -103,8 +102,13 @@ defmodule Uptimer.Websites do
     case result do
       {:ok, updated_website} ->
         # If thumbnail was enabled, generate thumbnail
-        if Map.get(attrs, "thumbnail") && website.thumbnail != updated_website.thumbnail do
+        if Map.get(attrs, "thumbnail") && website.thumbnail != updated_website.thumbnail &&
+             response.status < 400 do
           Task.start(fn -> generate_and_save_thumbnail(updated_website) end)
+        else
+          if response.status >= 400 do
+            Thumbnail.delete_thumbnails_for_url(website.address)
+          end
         end
 
         result
@@ -112,6 +116,26 @@ defmodule Uptimer.Websites do
       error ->
         error
     end
+  end
+
+  @doc """
+  Updates a website by checking its status without changing other attributes.
+
+  ## Examples
+
+      iex> update_website(website)
+      {:ok, %Website{}}
+  """
+  def update_website(%Website{} = website) do
+    IO.puts("Refreshing thumbnail for #{website.address}")
+    # Get current website status
+    {:ok, response} =
+      Finch.build(:get, website.address)
+      |> add_browser_headers()
+      |> Finch.request(Uptimer.Finch)
+
+    # Only update the status attribute
+    update_website(website, %{"status" => Integer.to_string(response.status)})
   end
 
   @doc """
@@ -159,6 +183,10 @@ defmodule Uptimer.Websites do
     update_website(website, %{
       "thumbnail" => !website.thumbnail
     })
+  end
+
+  def refresh_thumbnail(%Website{} = website) do
+    update_website(website)
   end
 
   @doc """

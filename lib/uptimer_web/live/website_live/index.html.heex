@@ -9,14 +9,14 @@
       <!-- Website Card -->
       <div
         id={dom_id}
-        class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border-t-4 border-green-500"
+        class={"bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border-t-4 #{if String.to_integer(website.status) >= 400, do: "border-red-500", else: "border-green-500"}"}
       >
         <div class="p-3 sm:p-4">
           <div class="flex justify-between items-center mb-2">
             <h3 class="font-bold text-gray-700 dark:text-gray-200 text-sm sm:text-base truncate">
               {website.name}
             </h3>
-            <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full ml-2 whitespace-nowrap">
+            <span class={"px-2 py-1 text-xs rounded-full ml-2 whitespace-nowrap #{if String.to_integer(website.status) >= 400, do: "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200", else: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"}"}>
               {website.status}
             </span>
           </div>
@@ -75,6 +75,14 @@
                     class="h-3 w-3 mr-1"
                   />
                   <span>{if website.thumbnail, do: "Live", else: "Thumb"}</span>
+                </button>
+                <button
+                  phx-click="refresh_thumbnail"
+                  phx-value-id={website.id}
+                  class="ml-2 px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-xs flex items-center"
+                >
+                  <.icon name="hero-refresh" class="h-3 w-3 mr-1" />
+                  <span>Refresh</span>
                 </button>
               </div>
             </div>

@@ -76,6 +76,14 @@ defmodule UptimerWeb.WebsiteLive.Index do
   end
 
   @impl true
+  def handle_event("refresh_thumbnail", %{"id" => id}, socket) do
+    website = Websites.get_website!(id)
+    {:ok, updated_website} = Websites.refresh_thumbnail(website)
+
+    {:noreply, stream_insert(socket, :websites, updated_website)}
+  end
+
+  @impl true
   def handle_event("save", %{"website" => website_params}, socket) do
     case Websites.create_website(Map.put(website_params, "status", "ok")) do
       {:ok, website} ->

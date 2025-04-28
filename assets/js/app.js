@@ -182,9 +182,35 @@ function refreshAllWebsites() {
     }
 
     // Update the "Last checked" text if it exists
-    const statusElement = document.querySelector(`.website-card[data-website-id="${websiteId}"] .text-xs`);
+    const statusElement = document.querySelector(`[id="${websiteId}"] .text-xs`);
     if (statusElement) {
       statusElement.textContent = 'Last checked: Just now';
+    }
+  });
+
+  toggleAllThumbnails();
+}
+
+// Function to toggle thumbnails for all websites where thumbnail is true
+function toggleAllThumbnails() {
+  console.log("🚀 ~ toggleAllThumbnails ~ toggleAllThumbnails:")
+  // Get all buttons that trigger toggle_thumbnail event for websites with thumbnail=true
+  document.querySelectorAll('img[id^="thumbnail-"]').forEach(thumbnail => {
+    console.log("🚀 ~ document.querySelectorAll ~ thumbnail:", thumbnail)
+    // Skip thumbnails that are hidden
+    if (thumbnail.style.display === 'none') {
+      console.log(`Skipping thumbnail with display:none: ${thumbnail.id}`);
+      return;
+    }
+
+    // Extract website ID from the thumbnail ID (format: thumbnail-{websiteId})
+    const websiteId = thumbnail.id.replace('thumbnail-', '');
+
+    // Find the toggle button for this website
+    const refreshButton = document.querySelector(`button[phx-click="refresh_thumbnail"][phx-value-id="${websiteId}"]`);
+    if (refreshButton) {
+      console.log(`[${websiteId}] Triggering refresh_thumbnail for thumbnail...`);
+      refreshButton.click();
     }
   });
 }
