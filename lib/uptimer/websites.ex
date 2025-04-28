@@ -86,7 +86,7 @@ defmodule Uptimer.Websites do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_website(%Website{} = website, attrs) do
+  def update_website(%Website{} = website, attrs, opts \\ []) do
     {:ok, response} =
       Finch.build(:get, website.address)
       |> add_browser_headers()
@@ -101,20 +101,34 @@ defmodule Uptimer.Websites do
 
     case result do
       {:ok, updated_website} ->
-        # If thumbnail was enabled, generate thumbnail
-        if Map.get(attrs, "thumbnail") && website.thumbnail != updated_website.thumbnail &&
-             response.status < 400 do
-          Task.start(fn -> generate_and_save_thumbnail(updated_website) end)
-        else
-          if response.status >= 400 do
-            Thumbnail.delete_thumbnails_for_url(website.address)
-          end
+        unless Keyword.get(opts, :skip_thumbnail_update, false) do
+          handle_thumbnail_update(website, updated_website, response)
         end
 
         result
 
       error ->
         error
+    end
+  end
+
+  # Handle thumbnail updates based on various conditions
+  defp handle_thumbnail_update(website, updated_website, response) do
+    thumbnail_enabled = website.thumbnail
+    is_success_status = response.status < 400
+
+    cond do
+      # Case 1: Generate thumbnail when enabled/toggled and status is good
+      thumbnail_enabled && is_success_status ->
+        Task.start(fn -> generate_and_save_thumbnail(updated_website) end)
+
+      # Case 2: Delete thumbnail when status code indicates error
+      response.status >= 400 ->
+        Thumbnail.delete_thumbnails_for_url(website.address)
+
+      # Case 3: No action needed
+      true ->
+        :ok
     end
   end
 
@@ -190,14 +204,49 @@ defmodule Uptimer.Websites do
   end
 
   @doc """
+  Deletes a website's thumbnail and updates the record.
+
+  ## Examples
+
+      iex> delete_thumbnail(website)
+      {:ok, %Website{}}
+  """
+  def delete_thumbnail(%Website{} = website) do
+    # Delete thumbnail files
+    Thumbnail.delete_thumbnails_for_url(website.address)
+
+    # Update website record to remove thumbnail_url
+    result = update_website(website, %{"thumbnail_url" => nil}, skip_thumbnail_update: true)
+
+    # Broadcast that thumbnail has been removed
+    case result do
+      {:ok, updated_website} ->
+        Phoenix.PubSub.broadcast(
+          Uptimer.PubSub,
+          "website:thumbnail:#{updated_website.id}",
+          {:website_thumbnail_generated, updated_website.id, nil}
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
+  end
+
+  @doc """
   Generates and saves a thumbnail for a website.
   """
   def generate_and_save_thumbnail(%Website{} = website) do
     case Thumbnail.generate_thumbnail(website.address) do
       {:ok, thumbnail_url} ->
         IO.puts("Thumbnail generated for #{website.address}")
-        # Update the website with the new thumbnail URL
-        result = update_website(website, %{"thumbnail_url" => thumbnail_url})
+
+        # Update the website with the new thumbnail URL, but skip thumbnail update to prevent recursion
+        result =
+          update_website(website, %{"thumbnail_url" => thumbnail_url},
+            skip_thumbnail_update: true
+          )
 
         # Broadcast event that thumbnail has been generated
         Phoenix.PubSub.broadcast(
@@ -214,7 +263,7 @@ defmodule Uptimer.Websites do
 
         # Set the thumbnail_url to nil if thumbnail is enabled
         if website.thumbnail do
-          result = update_website(website, %{"thumbnail_url" => nil})
+          result = update_website(website, %{"thumbnail_url" => nil}, skip_thumbnail_update: true)
 
           # Broadcast that we're using the default "no preview" image
           Phoenix.PubSub.broadcast(

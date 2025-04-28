@@ -48,7 +48,7 @@ defmodule UptimerWeb.WebsiteLive.Index do
   end
 
   @impl true
-  def handle_info({:website_thumbnail_generated, website_id, _thumbnail_url}, socket) do
+  def handle_info({:website_thumbnail_generated, website_id, thumbnail_url}, socket) do
     # Get the website by id
     website = Websites.get_website!(website_id)
 

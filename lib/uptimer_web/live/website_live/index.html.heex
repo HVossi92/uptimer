@@ -102,7 +102,11 @@
               >
               </iframe>
               <img
-                src={website.thumbnail_url || "/images/no-preview.svg"}
+                src={
+                  (website.thumbnail_url &&
+                     "#{website.thumbnail_url}?t=#{System.system_time(:millisecond)}") ||
+                    "/images/no-preview.svg"
+                }
                 alt="Website thumbnail"
                 loading="lazy"
                 class="w-full h-full object-cover absolute inset-0 thumbnail-debug"
