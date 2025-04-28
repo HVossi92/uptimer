@@ -16,3 +16,4 @@
 - [x] Show unavailable websites as offline & red
 - [ ] Implement edit website
 - [ ] Allow inputs without http or with www
+- [ ] Redirect "users/register" to "/"
