@@ -1,5 +1,5 @@
 <div class="h-screen flex flex-col">
-  <header class="bg-white/80 backdrop-blur-sm dark:bg-gray-800/20 shadow-lg py-4 px-4 sm:px-6 flex-none border-b border-gray-200/50 dark:border-white/10">
+  <header class="bg-white/80 backdrop-blur-sm dark:bg-gray-500/5 shadow-lg py-4 px-4 sm:px-6 flex-none border-b border-gray-200/50 dark:border-white/5">
     <div class="container mx-auto">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <!-- Left Section: Logo and Timer -->
@@ -12,7 +12,7 @@
           </div>
           
 <!-- Timer - Hidden on mobile, shown on sm and up -->
-          <div class="hidden sm:flex bg-gray-100 dark:bg-black/20 rounded-lg shadow-inner p-2 sm:p-3 items-center ml-6">
+          <div class="hidden sm:flex bg-gray-100 dark:bg-black/15 rounded-lg shadow-inner p-2 sm:p-3 items-center ml-6">
             <span class="text-gray-600 dark:text-gray-300 mr-2 text-sm">Next refresh in:</span>
             <span id="timer" class="text-blue-600 dark:text-blue-400 font-bold">5</span>
             <span class="text-gray-600 dark:text-gray-300 ml-1 text-sm">seconds</span>
@@ -92,7 +92,7 @@
       
 <!-- Timer for mobile only -->
       <div class="sm:hidden mt-4">
-        <div class="bg-gray-100 dark:bg-black/20 rounded-lg shadow-inner p-2 flex items-center justify-center">
+        <div class="bg-gray-100 dark:bg-black/15 rounded-lg shadow-inner p-2 flex items-center justify-center">
           <span class="text-gray-600 dark:text-gray-300 mr-2 text-sm">Next refresh in:</span>
           <span id="timer-mobile" class="text-blue-600 dark:text-blue-400 font-bold">5</span>
           <span class="text-gray-600 dark:text-gray-300 ml-1 text-sm">seconds</span>
@@ -101,12 +101,12 @@
     </div>
   </header>
 
-  <main class="flex-1 overflow-y-auto bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/60 dark:to-black/40">
+  <main class="flex-1 overflow-y-auto bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/40 dark:to-gray-800/30">
     <.flash_group flash={@flash} />
     {@inner_content}
   </main>
 
-  <footer class="bg-white/80 backdrop-blur-sm dark:bg-gray-800/20 shadow-inner py-4 px-4 sm:px-6 flex-none border-t border-gray-200/50 dark:border-white/10">
+  <footer class="bg-white/80 backdrop-blur-sm dark:bg-gray-500/5 shadow-inner py-4 px-4 sm:px-6 flex-none border-t border-gray-200/50 dark:border-white/5">
     <div class="container mx-auto">
       <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
         <div class="flex flex-wrap justify-center sm:justify-end gap-4">

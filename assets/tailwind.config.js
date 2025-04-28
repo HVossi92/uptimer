@@ -19,6 +19,10 @@ module.exports = {
         gray: {
           750: '#2D3748',
         }
+      },
+      backgroundImage: {
+        'gradient-radial-light': 'radial-gradient(circle at center, #e0ecff, #f5f8ff)',
+        'gradient-radial-dark': 'radial-gradient(circle at center, rgba(30, 64, 175, 0.6), rgba(0, 0, 0, 0.6))'
       }
     },
   },
