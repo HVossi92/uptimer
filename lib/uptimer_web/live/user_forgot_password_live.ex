@@ -5,25 +5,89 @@ defmodule UptimerWeb.UserForgotPasswordLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
-        Forgot your password?
-        <:subtitle>We'll send a password reset link to your inbox</:subtitle>
-      </.header>
+    <!-- Main Content -->
+    <div
+      class="min-h-screen flex items-center justify-center"
+      style="background: radial-gradient(circle at center, #1E40AF, #000000);"
+    >
+      <div class="bg-pattern"></div>
+      <div class="content w-full">
+        <div class="w-full max-w-xl mx-auto p-8 flex flex-col justify-between min-h-screen">
+          <!-- Header Section -->
+          <div class="flex-1 flex flex-col justify-center items-center text-center">
+            <div>
+              <h2 class="text-4xl sm:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-br from-gray-200 to-gray-600">
+                Forgot Your Password?
+              </h2>
+            </div>
+            <div>
+              <p class="text-lg sm:text-xl mb-8 text-gray-300">
+                Enter your email address and we'll send you a password reset link.
+              </p>
+            </div>
+            
+    <!-- Reset Password Form -->
+            <div class="w-full space-y-4 mb-8 bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10">
+              <.form for={@form} id="reset_password_form" phx-submit="send_email" class="space-y-4">
+                <div>
+                  <label for="user_email" class="block text-sm font-medium text-gray-300 mb-1">
+                    Email
+                  </label>
+                  <div class="relative rounded-md shadow-sm">
+                    <input
+                      type="email"
+                      name="user[email]"
+                      id="user_email"
+                      class="block w-full rounded-md border-0 bg-white/5 py-2 px-3 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6"
+                      placeholder="you@example.com"
+                      required
+                    />
+                  </div>
+                </div>
 
-      <.simple_form for={@form} id="reset_password_form" phx-submit="send_email">
-        <.input field={@form[:email]} type="email" placeholder="Email" required />
-        <:actions>
-          <.button phx-disable-with="Sending..." class="w-full">
-            Send password reset instructions
-          </.button>
-        </:actions>
-      </.simple_form>
-      <p class="text-center text-sm mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
-      </p>
+                <div>
+                  <button
+                    type="submit"
+                    phx-disable-with="Sending..."
+                    class="flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  >
+                    Send password reset instructions
+                  </button>
+                </div>
+
+                <div class="flex justify-between items-center mt-4 text-sm text-gray-300">
+                  <.link
+                    navigate={~p"/users/register"}
+                    class="font-semibold text-blue-400 hover:text-blue-300"
+                  >
+                    Register
+                  </.link>
+                  <.link
+                    navigate={~p"/users/log_in"}
+                    class="font-semibold text-blue-400 hover:text-blue-300"
+                  >
+                    Log in
+                  </.link>
+                </div>
+              </.form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <script>
+      // Dark mode functionality
+      const html = document.documentElement;
+
+      // Check for saved theme preference or use system preference
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
+    </script>
     """
   end
 

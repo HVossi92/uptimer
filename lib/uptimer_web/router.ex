@@ -20,7 +20,12 @@ defmodule UptimerWeb.Router do
   scope "/", UptimerWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    # Use HomeLive for the root path with the custom home layout
+    live_session :home,
+      layout: {UptimerWeb.Layouts, :home},
+      on_mount: [{UptimerWeb.UserAuth, :mount_current_user}] do
+      live "/", HomeLive, :index
+    end
   end
 
   # Other scopes may use custom stacks.
@@ -51,6 +56,7 @@ defmodule UptimerWeb.Router do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
     live_session :redirect_if_user_is_authenticated,
+      layout: {UptimerWeb.Layouts, :home},
       on_mount: [{UptimerWeb.UserAuth, :redirect_if_user_is_authenticated}] do
       live "/users/register", UserRegistrationLive, :new
       live "/users/log_in", UserLoginLive, :new
@@ -83,6 +89,7 @@ defmodule UptimerWeb.Router do
     delete "/users/log_out", UserSessionController, :delete
 
     live_session :current_user,
+      layout: {UptimerWeb.Layouts, :home},
       on_mount: [{UptimerWeb.UserAuth, :mount_current_user}] do
       live "/users/confirm/:token", UserConfirmationLive, :edit
       live "/users/confirm", UserConfirmationInstructionsLive, :new

@@ -5,36 +5,135 @@ defmodule UptimerWeb.UserResetPasswordLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">Reset Password</.header>
+    <!-- Main Content -->
+    <div
+      class="min-h-screen flex items-center justify-center"
+      style="background: radial-gradient(circle at center, #1E40AF, #000000);"
+    >
+      <div class="bg-pattern"></div>
+      <div class="content w-full">
+        <div class="w-full max-w-xl mx-auto p-8 flex flex-col justify-between min-h-screen">
+          <!-- Header Section -->
+          <div class="flex-1 flex flex-col justify-center items-center text-center">
+            <div>
+              <h2 class="text-4xl sm:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-br from-gray-200 to-gray-600">
+                Reset Your Password
+              </h2>
+            </div>
+            <div>
+              <p class="text-lg sm:text-xl mb-8 text-gray-300">
+                Enter your new password below to complete the reset process.
+              </p>
+            </div>
+            
+    <!-- Reset Password Form -->
+            <div class="w-full space-y-4 mb-8 bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10">
+              <.form
+                for={@form}
+                id="reset_password_form"
+                phx-submit="reset_password"
+                phx-change="validate"
+                class="space-y-4"
+              >
+                <.error :if={@form.errors != []} class="text-red-400 text-sm mb-4">
+                  Oops, something went wrong! Please check the errors below.
+                </.error>
 
-      <.simple_form
-        for={@form}
-        id="reset_password_form"
-        phx-submit="reset_password"
-        phx-change="validate"
-      >
-        <.error :if={@form.errors != []}>
-          Oops, something went wrong! Please check the errors below.
-        </.error>
+                <div>
+                  <label for="user_password" class="block text-sm font-medium text-gray-300 mb-1">
+                    New Password
+                  </label>
+                  <div class="relative rounded-md shadow-sm">
+                    <input
+                      type="password"
+                      name="user[password]"
+                      id="user_password"
+                      value={@form[:password].value}
+                      class={[
+                        "block w-full rounded-md border-0 bg-white/5 py-2 px-3 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6",
+                        @form[:password].errors != [] && "ring-1 ring-red-500 focus:ring-red-500"
+                      ]}
+                      placeholder="••••••••"
+                      required
+                    />
+                    <div class="text-red-400 text-xs mt-1">
+                      {@form[:password].errors |> Enum.map(fn {msg, _} -> msg end) |> Enum.join(", ")}
+                    </div>
+                  </div>
+                </div>
 
-        <.input field={@form[:password]} type="password" label="New password" required />
-        <.input
-          field={@form[:password_confirmation]}
-          type="password"
-          label="Confirm new password"
-          required
-        />
-        <:actions>
-          <.button phx-disable-with="Resetting..." class="w-full">Reset Password</.button>
-        </:actions>
-      </.simple_form>
+                <div>
+                  <label
+                    for="user_password_confirmation"
+                    class="block text-sm font-medium text-gray-300 mb-1"
+                  >
+                    Confirm New Password
+                  </label>
+                  <div class="relative rounded-md shadow-sm">
+                    <input
+                      type="password"
+                      name="user[password_confirmation]"
+                      id="user_password_confirmation"
+                      value={@form[:password_confirmation].value}
+                      class={[
+                        "block w-full rounded-md border-0 bg-white/5 py-2 px-3 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6",
+                        @form[:password_confirmation].errors != [] &&
+                          "ring-1 ring-red-500 focus:ring-red-500"
+                      ]}
+                      placeholder="••••••••"
+                      required
+                    />
+                    <div class="text-red-400 text-xs mt-1">
+                      {@form[:password_confirmation].errors
+                      |> Enum.map(fn {msg, _} -> msg end)
+                      |> Enum.join(", ")}
+                    </div>
+                  </div>
+                </div>
 
-      <p class="text-center text-sm mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
-      </p>
+                <div>
+                  <button
+                    type="submit"
+                    phx-disable-with="Resetting..."
+                    class="flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  >
+                    Reset Password
+                  </button>
+                </div>
+
+                <div class="flex justify-between items-center mt-4 text-sm text-gray-300">
+                  <.link
+                    navigate={~p"/users/register"}
+                    class="font-semibold text-blue-400 hover:text-blue-300"
+                  >
+                    Register
+                  </.link>
+                  <.link
+                    navigate={~p"/users/log_in"}
+                    class="font-semibold text-blue-400 hover:text-blue-300"
+                  >
+                    Log in
+                  </.link>
+                </div>
+              </.form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <script>
+      // Dark mode functionality
+      const html = document.documentElement;
+
+      // Check for saved theme preference or use system preference
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
+    </script>
     """
   end
 
@@ -73,6 +172,11 @@ defmodule UptimerWeb.UserResetPasswordLive do
     {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
   end
 
+  defp assign_form(socket, %Ecto.Changeset{} = changeset) do
+    form = to_form(changeset, as: "user")
+    assign(socket, form: form)
+  end
+
   defp assign_user_and_token(socket, %{"token" => token}) do
     if user = Accounts.get_user_by_reset_password_token(token) do
       assign(socket, user: user, token: token)
@@ -83,7 +187,9 @@ defmodule UptimerWeb.UserResetPasswordLive do
     end
   end
 
-  defp assign_form(socket, %{} = source) do
-    assign(socket, :form, to_form(source, as: "user"))
+  defp assign_user_and_token(socket, _params) do
+    socket
+    |> put_flash(:error, "Reset password link is invalid or it has expired.")
+    |> redirect(to: ~p"/")
   end
 end
