@@ -102,7 +102,7 @@ defmodule UptimerWeb.UserLoginLive do
                   <p class="text-sm text-gray-300">
                     Don't have an account?
                     <.link
-                      navigate={~p"/users/register"}
+                      navigate={~p"/"}
                       class="font-semibold text-blue-400 hover:text-blue-300 ml-1"
                     >
                       Sign up
