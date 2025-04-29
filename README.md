@@ -3,7 +3,7 @@
 ## Todos:
 
 - [x] Do use iframes whenever possible to avoid overhead
-- [ ] Make sure thumbnails are small
+- [x] Make sure thumbnails are small
 - [ ] Limit thumbnails to 4 per free account
 - [ ] User deletion
 - [ ] Make sign-up process nice
@@ -17,3 +17,4 @@
 - [ ] Implement edit website
 - [ ] Allow inputs without http or with www
 - [ ] Redirect "users/register" to "/"
+- [ ] Add fk to websites -> users
