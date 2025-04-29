@@ -9,11 +9,6 @@ defmodule Uptimer.Websites.Thumbnail do
   @thumbnail_dir Path.join([@priv_dir, "static", "uploads", "thumbnails"])
   @thumbnail_path_prefix "/uploads/thumbnails"
 
-  # Define the thumbnail dimensions to match display size
-  @viewport_width 330
-  # Slightly higher than display for better aspect ratio
-  @viewport_height 200
-
   def init do
     # Ensure the thumbnail directory exists and log where it's being created
     File.mkdir_p!(@thumbnail_dir)
@@ -105,17 +100,13 @@ defmodule Uptimer.Websites.Thumbnail do
 
   defp generate_screenshot(url, output_path) do
     try do
-      # Use the correct API for ChromicPDF's capture_screenshot with optimized settings
       ChromicPDF.capture_screenshot(
         {:url, url},
         output: output_path,
-        set_viewport_size: %{
-          width: @viewport_width,
-          height: @viewport_height
-        },
         capture_screenshot: %{
           format: "webp",
-          quality: 75
+          quality: 75,
+          clip: %{x: 0, y: 0, width: 1125, height: 788, scale: 0.4}
         },
         # Removed wait_for option - using delay instead which is more compatible
         delay: 1500,
