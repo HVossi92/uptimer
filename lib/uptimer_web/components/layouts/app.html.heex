@@ -115,20 +115,20 @@
     <div class="container mx-auto">
       <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
         <div class="flex flex-wrap justify-center sm:justify-end gap-4">
-          <a
-            href="#"
+          <.link
+            navigate={~p"/privacy-policy"}
             class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors"
           >
-            <.icon name="hero-question-mark-circle-solid" class="h-4 w-4 mr-1 inline" />
+            <.icon name="hero-document-text-solid" class="h-4 w-4 mr-1 inline" />
             <span>Privacy Policy</span>
-          </a>
-          <a
-            href={~p"/users/settings"}
+          </.link>
+          <.link
+            navigate={~p"/terms-of-service"}
             class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors"
           >
-            <.icon name="hero-cog-6-tooth-solid" class="h-4 w-4 mr-1 inline" />
+            <.icon name="hero-document-check-solid" class="h-4 w-4 mr-1 inline" />
             <span>Terms of Service</span>
-          </a>
+          </.link>
         </div>
         <div class="text-center sm:text-right">
           <a

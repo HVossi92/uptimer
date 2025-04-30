@@ -26,6 +26,14 @@ defmodule UptimerWeb.Router do
       on_mount: [{UptimerWeb.UserAuth, :mount_current_user}] do
       live "/", HomeLive, :index
     end
+
+    # Legal pages
+    live_session :legal,
+      layout: {UptimerWeb.Layouts, :app},
+      on_mount: [{UptimerWeb.UserAuth, :mount_current_user}] do
+      live "/privacy-policy", Legal.PrivacyPolicyLive, :index
+      live "/terms-of-service", Legal.TermsOfServiceLive, :index
+    end
   end
 
   # Other scopes may use custom stacks.
