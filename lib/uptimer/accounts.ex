@@ -350,4 +350,35 @@ defmodule Uptimer.Accounts do
       {:error, :user, changeset, _} -> {:error, changeset}
     end
   end
+
+  @doc """
+  Deletes a user and all their data.
+
+  This includes:
+  - All user's websites and associated thumbnails
+  - All user's tokens (sessions, etc.)
+  - The user record itself
+
+  Returns :ok on success
+  """
+  def delete_user(user) do
+    # Get all websites associated with this user
+    websites_query =
+      from w in Uptimer.Websites.Website,
+        where: w.user_id == ^user.id
+
+    # Setup the transaction
+    Ecto.Multi.new()
+    # Delete all websites (thumbnails are handled by the website delete callback)
+    |> Ecto.Multi.delete_all(:websites, websites_query)
+    # Delete all tokens
+    |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, :all))
+    # Delete the user
+    |> Ecto.Multi.delete(:user, user)
+    |> Repo.transaction()
+    |> case do
+      {:ok, _} -> :ok
+      {:error, _, reason, _} -> {:error, reason}
+    end
+  end
 end

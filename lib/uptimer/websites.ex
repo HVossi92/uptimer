@@ -22,6 +22,14 @@ defmodule Uptimer.Websites do
     Repo.all(Website)
   end
 
+  def list_websites_for_user(user_id) do
+    # Repo.all(from w in Website, where: ilike(w.id, ^user_id))
+    IO.inspect(user_id)
+    websites = Repo.all(from w in Website, where: w.user_id == ^user_id)
+    IO.inspect(websites)
+    websites
+  end
+
   @doc """
   Gets a single website.
 
@@ -50,13 +58,15 @@ defmodule Uptimer.Websites do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_website(attrs \\ %{}) do
+  def create_website(attrs \\ %{}, user_id) do
     {:ok, response} =
       Finch.build(:get, attrs["address"])
       |> add_browser_headers()
       |> Finch.request(Uptimer.Finch)
 
     attrs = Map.put(attrs, "status", Integer.to_string(response.status))
+    # Add user_id to the attributes
+    attrs = Map.put(attrs, "user_id", user_id)
 
     result =
       %Website{}

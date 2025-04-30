@@ -7,11 +7,14 @@ defmodule UptimerWeb.WebsiteLive.Index do
   @impl true
   def mount(_params, _session, socket) do
     # Stream initial websites
-    socket = stream(socket, :websites, Websites.list_websites())
+    websites = Websites.list_websites_for_user(socket.assigns.current_user.id)
+
+    socket =
+      stream(socket, :websites, websites)
 
     # Subscribe to thumbnail generation events for all websites
     if connected?(socket) do
-      for website <- Websites.list_websites() do
+      for website <- websites do
         Phoenix.PubSub.subscribe(Uptimer.PubSub, "website:thumbnail:#{website.id}")
       end
     end
@@ -85,7 +88,9 @@ defmodule UptimerWeb.WebsiteLive.Index do
 
   @impl true
   def handle_event("save", %{"website" => website_params}, socket) do
-    case Websites.create_website(Map.put(website_params, "status", "ok")) do
+    user_id = socket.assigns.current_user.id
+
+    case Websites.create_website(Map.put(website_params, "status", "ok"), user_id) do
       {:ok, website} ->
         # Subscribe to thumbnail updates for the new website
         Phoenix.PubSub.subscribe(Uptimer.PubSub, "website:thumbnail:#{website.id}")

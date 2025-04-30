@@ -68,6 +68,17 @@ defmodule UptimerWeb.UserSettingsLive do
             <.button phx-disable-with="Changing...">Change Password</.button>
           </:actions>
         </.simple_form>
+
+        <.simple_form id="delete_user_form" for={%{}} phx-submit="delete_user" class="mt-10">
+          <div class="flex flex-col items-start gap-4">
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+              This will permanently delete your account, all of your websites, and associated data. This action cannot be undone.
+            </p>
+            <.button class="bg-red-600 hover:bg-red-700" phx-disable-with="Deleting...">
+              <.icon name="hero-trash" class="h-5 w-5 mr-2" /> Delete Account
+            </.button>
+          </div>
+        </.simple_form>
       </div>
     </div>
     """
@@ -162,6 +173,24 @@ defmodule UptimerWeb.UserSettingsLive do
 
       {:error, changeset} ->
         {:noreply, assign(socket, password_form: to_form(changeset))}
+    end
+  end
+
+  def handle_event("delete_user", _params, socket) do
+    user = socket.assigns.current_user
+
+    case Accounts.delete_user(user) do
+      :ok ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Account deleted successfully.")
+         |> redirect(to: ~p"/")}
+
+      {:error, reason} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Error deleting account: #{inspect(reason)}")
+         |> redirect(to: ~p"/users/settings")}
     end
   end
 end
