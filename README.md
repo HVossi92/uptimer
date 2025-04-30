@@ -18,6 +18,8 @@
 - [ ] Allow inputs without http or with www
 - [x] Redirect "users/register" to "/"
 - [x] Add fk to websites -> users
-- [ ] Fix /users/settings layout
+- [x] Fix /users/settings layout
 - [x] Link back to "/" on header icon and title
 - [ ] Signup Password can't be blank message stays until blur
+- [ ] Implement privacy policy
+- [ ] Implement terms of service

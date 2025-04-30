@@ -5,80 +5,135 @@ defmodule UptimerWeb.UserSettingsLive do
 
   def render(assigns) do
     ~H"""
-    <.header class="text-center">
-      Account Settings
-      <:subtitle>Manage your account email address and password settings</:subtitle>
-    </.header>
+    <div class="h-full bg-gradient-radial-light dark:bg-gradient-radial-dark">
+      <div class="content w-full py-8">
+        <div class="container mx-auto px-4 sm:px-6">
+          <.header class="text-center mb-8">
+            <h1 class="text-gray-900 dark:text-white">Account Settings</h1>
+            <:subtitle>
+              <span class="text-gray-600 dark:text-gray-300">
+                Manage your account email address and password settings
+              </span>
+            </:subtitle>
+          </.header>
 
-    <div class="space-y-12 divide-y">
-      <div>
-        <.simple_form
-          for={@email_form}
-          id="email_form"
-          phx-submit="update_email"
-          phx-change="validate_email"
-        >
-          <.input field={@email_form[:email]} type="email" label="Email" required />
-          <.input
-            field={@email_form[:current_password]}
-            name="current_password"
-            id="current_password_for_email"
-            type="password"
-            label="Current password"
-            value={@email_form_current_password}
-            required
-          />
-          <:actions>
-            <.button phx-disable-with="Changing...">Change Email</.button>
-          </:actions>
-        </.simple_form>
-      </div>
-      <div>
-        <.simple_form
-          for={@password_form}
-          id="password_form"
-          action={~p"/users/log_in?_action=password_updated"}
-          method="post"
-          phx-change="validate_password"
-          phx-submit="update_password"
-          phx-trigger-action={@trigger_submit}
-        >
-          <input
-            name={@password_form[:email].name}
-            type="hidden"
-            id="hidden_user_email"
-            value={@current_email}
-          />
-          <.input field={@password_form[:password]} type="password" label="New password" required />
-          <.input
-            field={@password_form[:password_confirmation]}
-            type="password"
-            label="Confirm new password"
-          />
-          <.input
-            field={@password_form[:current_password]}
-            name="current_password"
-            type="password"
-            label="Current password"
-            id="current_password_for_password"
-            value={@current_password}
-            required
-          />
-          <:actions>
-            <.button phx-disable-with="Changing...">Change Password</.button>
-          </:actions>
-        </.simple_form>
-
-        <.simple_form id="delete_user_form" for={%{}} phx-submit="delete_user" class="mt-10">
-          <div class="flex flex-col items-start gap-4">
-            <p class="text-sm text-gray-700 dark:text-gray-300">
-              This will permanently delete your account, all of your websites, and associated data. This action cannot be undone.
-            </p>
-            <.button class="bg-red-600 hover:bg-red-700" phx-disable-with="Deleting...">
-              <.icon name="hero-trash" class="h-5 w-5 mr-2" /> Delete Account
-            </.button>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Email Settings -->
+            <div class="bg-white/90 dark:bg-gray-800/30 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden p-6 border border-gray-200 dark:border-white/20">
+              <h3 class="font-bold text-gray-800 dark:text-white text-lg mb-4">Email Settings</h3>
+              <.simple_form
+                for={@email_form}
+                id="email_form"
+                phx-submit="update_email"
+                phx-change="validate_email"
+                class="space-y-4"
+              >
+                <.input
+                  field={@email_form[:email]}
+                  type="email"
+                  label="Email"
+                  required
+                  class="block w-full px-4 py-2.5 bg-white/50 dark:bg-black/20 border border-gray-300 dark:border-white/20 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                />
+                <.input
+                  field={@email_form[:current_password]}
+                  name="current_password"
+                  id="current_password_for_email"
+                  type="password"
+                  label="Current password"
+                  value={@email_form_current_password}
+                  required
+                  class="block w-full px-4 py-2.5 bg-white/50 dark:bg-black/20 border border-gray-300 dark:border-white/20 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                />
+                <:actions>
+                  <.button
+                    phx-disable-with="Changing..."
+                    class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    Change Email
+                  </.button>
+                </:actions>
+              </.simple_form>
+            </div>
+            
+    <!-- Password Settings -->
+            <div class="bg-white/90 dark:bg-gray-800/30 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden p-6 border border-gray-200 dark:border-white/20">
+              <h3 class="font-bold text-gray-800 dark:text-white text-lg mb-4">Password Settings</h3>
+              <.simple_form
+                for={@password_form}
+                id="password_form"
+                action={~p"/users/log_in?_action=password_updated"}
+                method="post"
+                phx-change="validate_password"
+                phx-submit="update_password"
+                phx-trigger-action={@trigger_submit}
+                class="space-y-4 bg-transparent"
+              >
+                <input
+                  name={@password_form[:email].name}
+                  type="hidden"
+                  id="hidden_user_email"
+                  value={@current_email}
+                />
+                <.input
+                  field={@password_form[:password]}
+                  type="password"
+                  label="New password"
+                  required
+                  class="block w-full px-4 py-2.5 bg-white/50 dark:bg-black/20 border border-gray-300 dark:border-white/20 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                />
+                <.input
+                  field={@password_form[:password_confirmation]}
+                  type="password"
+                  label="Confirm new password"
+                  class="block w-full px-4 py-2.5 bg-white/50 dark:bg-black/20 border border-gray-300 dark:border-white/20 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                />
+                <.input
+                  field={@password_form[:current_password]}
+                  name="current_password"
+                  type="password"
+                  label="Current password"
+                  id="current_password_for_password"
+                  value={@current_password}
+                  required
+                  class="block w-full px-4 py-2.5 bg-white/50 dark:bg-black/20 border border-gray-300 dark:border-white/20 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                />
+                <:actions>
+                  <.button
+                    phx-disable-with="Changing..."
+                    class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    Change Password
+                  </.button>
+                </:actions>
+              </.simple_form>
+            </div>
+            
+    <!-- Delete Account -->
+            <div class="md:col-span-2 bg-white/90 dark:bg-gray-800/30 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden p-6 border border-gray-200 dark:border-white/20 mt-4">
+              <h3 class="font-bold text-gray-800 dark:text-white text-lg mb-4">Danger Zone</h3>
+              <.simple_form
+                id="delete_user_form"
+                for={%{}}
+                phx-submit="delete_user"
+                class="mt-4 bg-transparent"
+                data-confirm="Are you sure you want to delete your account? This action cannot be undone."
+              >
+                <div class="flex flex-col items-start gap-4">
+                  <p class="text-sm text-gray-700 dark:text-gray-300">
+                    This will permanently delete your account, all of your websites, and associated data. This action cannot be undone.
+                  </p>
+                  <.button
+                    class="px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:hover:bg-red-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors flex items-center"
+                    phx-disable-with="Deleting..."
+                  >
+                    <.icon name="hero-trash" class="h-5 w-5 mr-2" /> Delete Account
+                  </.button>
+                </div>
+              </.simple_form>
+            </div>
           </div>
-        </.simple_form>
+        </div>
       </div>
     </div>
     """
