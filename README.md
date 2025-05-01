@@ -113,7 +113,7 @@ Check the project's current status:
 - [x] Fix "Signup Password can't be blank" message
 - [x] Allow inputs without http or with www
 - [x] Make sign-up process nicer
-- [ ] Improve SEO
+- [x] Improve SEO
 - [ ] Implement edit website
 - [ ] Take redirects into account
 - [ ] Fix tests
