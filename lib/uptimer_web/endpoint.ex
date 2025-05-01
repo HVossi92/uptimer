@@ -7,7 +7,7 @@ defmodule UptimerWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_uptimer_key",
-    signing_salt: "0DD5McS5",
+    signing_salt: "LcfLW1Ol",
     same_site: "Lax"
   ]
 
@@ -24,6 +24,13 @@ defmodule UptimerWeb.Endpoint do
     from: :uptimer,
     gzip: false,
     only: UptimerWeb.static_paths()
+
+  # Special handling for SEO files (robots.txt and sitemap.xml)
+  plug Plug.Static,
+    at: "/",
+    from: :uptimer,
+    gzip: false,
+    only: ~w(robots.txt sitemap.xml)
 
   # Serve thumbnail files uploaded to the /uploads path
   # Use explicit path to avoid confusion about location in the release

@@ -4,11 +4,67 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="Uptimer">
-      {assigns[:page_title]}
+    
+<!-- SEO Meta Tags -->
+    <meta
+      name="description"
+      content="Uptimer - Website monitoring made simple. Monitor your websites with near real-time status updates and visual verification. Free tier available."
+    />
+    <meta
+      name="keywords"
+      content="website monitoring, uptime tracker, website status, site monitoring, web monitoring tool, website health check, free website monitoring"
+    />
+    <meta name="author" content="Uptimer" />
+    <meta name="robots" content="index, follow" />
+    
+<!-- Open Graph / Social Media Meta Tags -->
+    <meta
+      property="og:title"
+      content={assigns[:page_title] || "Uptimer - Website Monitoring Made Simple"}
+    />
+    <meta
+      property="og:description"
+      content="Monitor multiple websites at a glance with near real-time status updates. Get visual verification of your sites' appearance. Start with 32 websites for free."
+    />
+    <meta property="og:image" content={~p"/images/uptimer-og-image.png"} />
+    <meta
+      property="og:url"
+      content={"https://uptimer.vossihub.org#{Phoenix.Controller.current_path(@conn)}"}
+    />
+    <meta property="og:type" content="website" />
+    
+<!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content={assigns[:page_title] || "Uptimer - Website Monitoring Made Simple"}
+    />
+    <meta
+      name="twitter:description"
+      content="Monitor multiple websites at a glance with near real-time status updates and visual verification."
+    />
+    <meta name="twitter:image" content={~p"/images/uptimer-og-image.png"} />
+    
+<!-- Canonical URL -->
+    <link
+      rel="canonical"
+      href={"https://uptimer.vossihub.org#{Phoenix.Controller.current_path(@conn)}"}
+    />
+
+    <.live_title default="Uptimer - Website Monitoring Made Simple">
+      {assigns[:page_title] && "#{assigns[:page_title]} | Uptimer"}
     </.live_title>
+    
+<!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href={~p"/favicon.ico"} />
+    <link rel="icon" type="image/png" sizes="32x32" href={~p"/images/favicon-32x32.png"} />
+    <link rel="icon" type="image/png" sizes="16x16" href={~p"/images/favicon-16x16.png"} />
+    <link rel="apple-touch-icon" sizes="180x180" href={~p"/images/apple-touch-icon.png"} />
+
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+    <script defer type="text/javascript" src={~p"/js/seo-helpers.js"}>
     </script>
   </head>
   <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-200">

@@ -6,7 +6,7 @@
 
 Uptimer is a web application that allows you to monitor multiple websites at a glance. Built with Elixir and Phoenix LiveView, it provides a real-time dashboard to monitor the availability and visual state of your web properties.
 
-**[Try the Live Demo](https://uptimer.duckdns.org)**
+**[Try the Live Demo](https://uptimer.vossihub.org)**
 
 ## Features
 
@@ -113,6 +113,7 @@ Check the project's current status:
 - [x] Fix "Signup Password can't be blank" message
 - [x] Allow inputs without http or with www
 - [x] Make sign-up process nicer
+- [ ] Improve SEO
 - [ ] Implement edit website
 - [ ] Take redirects into account
 - [ ] Fix tests

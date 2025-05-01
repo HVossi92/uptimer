@@ -32,14 +32,6 @@ Hooks.IframeLoader = {
     const thumbnailEl = document.getElementById(`thumbnail-${websiteId}`);
     const useThumbnail = this.el.dataset.useThumbnail === "true";
 
-    // Debug information about available elements
-    console.log(`[${websiteId}] IframeLoader mounted for: ${iframeEl.src}`);
-    console.log(`[${websiteId}] Thumbnail element:`, thumbnailEl);
-    console.log(`[${websiteId}] Use thumbnail preference:`, useThumbnail);
-    if (thumbnailEl) {
-      console.log(`[${websiteId}] Thumbnail src:`, thumbnailEl.src);
-    }
-
     // Get icon elements
     const loadingIcon = document.getElementById(`loading-icon-${websiteId}`);
     const liveIcon = document.getElementById(`live-icon-${websiteId}`);
@@ -69,7 +61,6 @@ Hooks.IframeLoader = {
       if (iframeHandled) return;
       iframeHandled = true;
 
-      console.log(`[${websiteId}] Showing thumbnail view`);
       iframeEl.style.display = 'none';
       if (thumbnailEl) {
         // thumbnailEl.style.display = 'block';
@@ -82,7 +73,6 @@ Hooks.IframeLoader = {
       if (iframeHandled) return;
       iframeHandled = true;
 
-      console.log(`[${websiteId}] Showing iframe view`);
       iframeEl.style.display = 'block';
       if (thumbnailEl) {
         // thumbnailEl.style.display = 'none';
@@ -92,7 +82,6 @@ Hooks.IframeLoader = {
 
     // If user preference is to use thumbnail, show it
     if (useThumbnail && thumbnailEl) {
-      console.log(`[${websiteId}] User preference is to use thumbnail view`);
       showThumbnail();
       return;
     }
@@ -110,14 +99,12 @@ Hooks.IframeLoader = {
 
     // Handle iframe error but still show iframe
     iframeEl.addEventListener('error', () => {
-      console.log(`[${websiteId}] Error loading iframe, but still showing it`);
       showIframe();
     });
 
     // Ensure iframe is shown if not handled yet
     setTimeout(() => {
       if (!iframeHandled) {
-        console.log(`[${websiteId}] Timeout reached, ensuring iframe is shown`);
         showIframe();
       }
     }, 2000);
@@ -223,15 +210,11 @@ window.liveSocket = liveSocket
 
 // Function to refresh all website previews (iframes and thumbnails)
 function refreshAllWebsites() {
-  console.log('Refreshing all website previews...');
-
   // Update all iframes by reloading their source
   document.querySelectorAll('iframe[data-website-id]').forEach(iframe => {
     const websiteId = iframe.dataset.websiteId;
     const thumbnailEl = document.getElementById(`thumbnail-${websiteId}`);
     const useThumbnail = iframe.dataset.useThumbnail === "true";
-
-    console.log(`[${websiteId}] Refreshing preview...`);
 
     // If using iframe (not thumbnail), refresh the iframe
     if (!useThumbnail) {
@@ -243,8 +226,6 @@ function refreshAllWebsites() {
       setTimeout(() => {
         iframe.src = currentSrc;
       }, 50);
-
-      console.log(`[${websiteId}] Refreshed iframe: ${currentSrc}`);
     }
 
     // If using thumbnail, refresh it by forcing a reload
@@ -253,8 +234,6 @@ function refreshAllWebsites() {
       const timestamp = new Date().getTime();
       const thumbnailSrc = thumbnailEl.src.split('?')[0]; // Remove any existing query params
       thumbnailEl.src = `${thumbnailSrc}?t=${timestamp}`;
-
-      console.log(`[${websiteId}] Refreshed thumbnail with timestamp: ${timestamp}`);
     }
 
     // Update the "Last checked" text if it exists
@@ -269,13 +248,10 @@ function refreshAllWebsites() {
 
 // Function to toggle thumbnails for all websites where thumbnail is true
 function toggleAllThumbnails() {
-  console.log("🚀 ~ toggleAllThumbnails ~ toggleAllThumbnails:")
   // Get all buttons that trigger toggle_thumbnail event for websites with thumbnail=true
   document.querySelectorAll('img[id^="thumbnail-"]').forEach(thumbnail => {
-    console.log("🚀 ~ document.querySelectorAll ~ thumbnail:", thumbnail)
     // Skip thumbnails that are hidden
     if (thumbnail.style.display === 'none') {
-      console.log(`Skipping thumbnail with display:none: ${thumbnail.id}`);
       return;
     }
 
@@ -285,7 +261,6 @@ function toggleAllThumbnails() {
     // Find the toggle button for this website
     const refreshButton = document.querySelector(`button[phx-click="refresh_thumbnail"][phx-value-id="${websiteId}"]`);
     if (refreshButton) {
-      console.log(`[${websiteId}] Triggering refresh_thumbnail for thumbnail...`);
       refreshButton.click();
     }
   });

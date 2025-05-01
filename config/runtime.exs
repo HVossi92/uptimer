@@ -61,8 +61,8 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base,
     check_origin: [
-      "//uptimer.duckdns.org",
-      "//*.uptimer.duckdns.org"
+      "//uptimer.vossihub.com",
+      "//*.uptimer.vossihub.com"
     ]
 
   # ## SSL Support

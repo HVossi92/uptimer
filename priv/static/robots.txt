@@ -3,3 +3,10 @@
 # To ban all spiders from the entire site uncomment the next two lines:
 # User-agent: *
 # Disallow: /
+
+User-agent: *
+Allow: /
+Disallow: /users/settings
+Disallow: /websites
+
+Sitemap: https://uptimer.vossihub.org/sitemap.xml
