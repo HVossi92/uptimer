@@ -112,7 +112,7 @@ Check the project's current status:
 - [x] Improve thumbnail update process
 - [x] Fix "Signup Password can't be blank" message
 - [x] Allow inputs without http or with www
-- [ ] Make sign-up process nice
+- [x] Make sign-up process nicer
 - [ ] Implement edit website
 - [ ] Take redirects into account
 - [ ] Fix tests

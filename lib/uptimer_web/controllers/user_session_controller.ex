@@ -31,7 +31,7 @@ defmodule UptimerWeb.UserSessionController do
         # Don't allow login for unconfirmed accounts
         conn
         |> put_flash(
-          :error,
+          :info,
           "Please confirm your email before signing in. An email confirmation link has been sent to you."
         )
         |> put_flash(:email, String.slice(email, 0, 160))

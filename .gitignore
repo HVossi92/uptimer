@@ -43,3 +43,6 @@ npm-debug.log
 
 # Ignore website thumbnails
 /priv/static/uploads/thumbnails/
+
+# Ignore secret configuration files
+/config/*.secret.exs

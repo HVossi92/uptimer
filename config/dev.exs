@@ -100,3 +100,8 @@ config :uptimer, Uptimer.Mailer,
     depth: 99,
     server_name_indication: ~c"smtp.gmail.com"
   ]
+
+# Import secret development configuration if it exists
+if File.exists?("config/dev.secret.exs") do
+  import_config "dev.secret.exs"
+end
