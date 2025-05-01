@@ -23,17 +23,24 @@ defmodule Uptimer.Accounts.UserNotifier do
   Deliver instructions to confirm account.
   """
   def deliver_confirmation_instructions(user, url) do
-    deliver(user.email, "Confirmation instructions", """
+    deliver(user.email, "Welcome to Uptimer - Confirm Your Account", """
 
     ==============================
 
     Hi #{user.email},
 
-    You can confirm your account by visiting the URL below:
+    Thank you for signing up with Uptimer! We're excited to have you on board.
+
+    To complete your registration and activate your account, please click the link below:
 
     #{url}
 
-    If you didn't create an account with us, please ignore this.
+    This link will expire in 24 hours for security reasons.
+
+    If you didn't create an account with us, please disregard this email.
+
+    Best regards,
+    The Uptimer Team
 
     ==============================
     """)
