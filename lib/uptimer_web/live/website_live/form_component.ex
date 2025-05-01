@@ -57,7 +57,9 @@ defmodule UptimerWeb.WebsiteLive.FormComponent do
   end
 
   defp save_website(socket, :edit, website_params) do
-    case Websites.update_website(socket.assigns.website, website_params) do
+    user_id = socket.assigns.current_user.id
+
+    case Websites.update_website(socket.assigns.website, website_params, user_id: user_id) do
       {:ok, website} ->
         notify_parent({:saved, website})
 
@@ -68,6 +70,12 @@ defmodule UptimerWeb.WebsiteLive.FormComponent do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
+
+      {:error, error_message} when is_binary(error_message) ->
+        {:noreply,
+         socket
+         |> put_flash(:error, error_message)
+         |> push_patch(to: socket.assigns.patch)}
     end
   end
 

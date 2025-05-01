@@ -59,6 +59,26 @@ defmodule Uptimer.Websites do
   def get_website!(id), do: Repo.get!(Website, id)
 
   @doc """
+  Gets a single website for a specific user.
+  Ensures that the website belongs to the user making the request.
+
+  Raises `Ecto.NoResultsError` if the Website does not exist or doesn't belong to the user.
+
+  ## Examples
+
+      iex> get_website_for_user!(123, user_id)
+      %Website{}
+
+      iex> get_website_for_user!(456, user_id)
+      ** (Ecto.NoResultsError)
+  """
+  def get_website_for_user!(id, user_id) do
+    Website
+    |> where([w], w.id == ^id and w.user_id == ^user_id)
+    |> Repo.one!()
+  end
+
+  @doc """
   Creates a website.
 
   ## Examples
@@ -184,6 +204,23 @@ defmodule Uptimer.Websites do
 
   """
   def update_website(%Website{} = website, attrs, opts \\ []) do
+    # Ensure the caller owns this website
+    unless opts[:skip_ownership_check] do
+      # If user_id is provided and doesn't match the website's user_id, return error
+      if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+        {:error, "You don't have permission to update this website"}
+      else
+        # Continue with the update
+        do_update_website(website, attrs, opts)
+      end
+    else
+      # Skip ownership check and continue with the update
+      do_update_website(website, attrs, opts)
+    end
+  end
+
+  # Internal function to handle the actual update
+  defp do_update_website(%Website{} = website, attrs, opts) do
     # If address is being updated, normalize it first
     attrs =
       if Map.has_key?(attrs, "address") do
@@ -304,12 +341,17 @@ defmodule Uptimer.Websites do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_website(%Website{} = website) do
-    # Delete all thumbnails for this website
-    Thumbnail.delete_thumbnails_for_url(website.address)
+  def delete_website(%Website{} = website, opts \\ []) do
+    # Ensure the caller owns this website
+    if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+      {:error, "You don't have permission to delete this website"}
+    else
+      # Delete all thumbnails for this website
+      Thumbnail.delete_thumbnails_for_url(website.address)
 
-    # Delete the website from database
-    Repo.delete(website)
+      # Delete the website from database
+      Repo.delete(website)
+    end
   end
 
   @doc """
@@ -333,33 +375,51 @@ defmodule Uptimer.Websites do
       iex> toggle_thumbnail(website)
       {:ok, %Website{}}
   """
-  def toggle_thumbnail(%Website{} = website) do
-    # If toggling from false to true, check the thumbnail limit
-    if !website.thumbnail do
-      # Check if user already has 4 thumbnails
-      if count_thumbnails_for_user(website.user_id) >= 4 do
-        {:error, "Maximum number of thumbnails (4) reached for free accounts"}
-      else
-        update_website(website, %{
-          "thumbnail" => true
-        })
-      end
+  def toggle_thumbnail(%Website{} = website, opts \\ []) do
+    # Ensure the caller owns this website
+    if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+      {:error, "You don't have permission to modify this website"}
     else
-      # Disabling a thumbnail is always allowed
-      update_website(website, %{
-        "thumbnail" => false
-      })
+      # If toggling from false to true, check the thumbnail limit
+      if !website.thumbnail do
+        # Check if user already has 4 thumbnails
+        if count_thumbnails_for_user(website.user_id) >= 4 do
+          {:error, "Maximum number of thumbnails (4) reached for free accounts"}
+        else
+          update_website(
+            website,
+            %{
+              "thumbnail" => true
+            },
+            skip_ownership_check: true
+          )
+        end
+      else
+        # Disabling a thumbnail is always allowed
+        update_website(
+          website,
+          %{
+            "thumbnail" => false
+          },
+          skip_ownership_check: true
+        )
+      end
     end
   end
 
-  def refresh_thumbnail(%Website{} = website) do
-    # First delete existing thumbnails to force a fresh generation
-    Thumbnail.delete_thumbnails_for_url(website.address)
+  def refresh_thumbnail(%Website{} = website, opts \\ []) do
+    # Ensure the caller owns this website
+    if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+      {:error, "You don't have permission to refresh thumbnails for this website"}
+    else
+      # First delete existing thumbnails to force a fresh generation
+      Thumbnail.delete_thumbnails_for_url(website.address)
 
-    # Then generate a new thumbnail
-    case generate_and_save_thumbnail(website) do
-      {:ok, updated_website} -> {:ok, updated_website}
-      {:error, _} = error -> error
+      # Then generate a new thumbnail
+      case generate_and_save_thumbnail(website) do
+        {:ok, updated_website} -> {:ok, updated_website}
+        {:error, _} = error -> error
+      end
     end
   end
 
@@ -371,27 +431,36 @@ defmodule Uptimer.Websites do
       iex> delete_thumbnail(website)
       {:ok, %Website{}}
   """
-  def delete_thumbnail(%Website{} = website) do
-    # Delete thumbnail files
-    Thumbnail.delete_thumbnails_for_url(website.address)
+  def delete_thumbnail(%Website{} = website, opts \\ []) do
+    # Ensure the caller owns this website
+    if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+      {:error, "You don't have permission to modify thumbnails for this website"}
+    else
+      # Delete thumbnail files
+      Thumbnail.delete_thumbnails_for_url(website.address)
 
-    # Update website record to remove thumbnail_url
-    result = update_website(website, %{"thumbnail_url" => nil}, skip_thumbnail_update: true)
-
-    # Broadcast that thumbnail has been removed
-    case result do
-      {:ok, updated_website} ->
-        Phoenix.PubSub.broadcast(
-          Uptimer.PubSub,
-          "website:thumbnail:#{updated_website.id}",
-          {:website_thumbnail_generated, updated_website.id, nil}
+      # Update website record to remove thumbnail_url
+      result =
+        update_website(website, %{"thumbnail_url" => nil},
+          skip_thumbnail_update: true,
+          skip_ownership_check: true
         )
 
-      _ ->
-        :ok
-    end
+      # Broadcast that thumbnail has been removed
+      case result do
+        {:ok, updated_website} ->
+          Phoenix.PubSub.broadcast(
+            Uptimer.PubSub,
+            "website:thumbnail:#{updated_website.id}",
+            {:website_thumbnail_generated, updated_website.id, nil}
+          )
 
-    result
+        _ ->
+          :ok
+      end
+
+      result
+    end
   end
 
   @doc """

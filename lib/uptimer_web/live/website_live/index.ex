@@ -43,9 +43,11 @@ defmodule UptimerWeb.WebsiteLive.Index do
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
+    user_id = socket.assigns.current_user.id
+
     socket
     |> assign(:page_title, "Edit Website")
-    |> assign(:website, Websites.get_website!(id))
+    |> assign(:website, Websites.get_website_for_user!(id, user_id))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -67,28 +69,41 @@ defmodule UptimerWeb.WebsiteLive.Index do
 
   @impl true
   def handle_info({:website_thumbnail_generated, website_id, thumbnail_url}, socket) do
-    # Get the website by id
-    website = Websites.get_website!(website_id)
+    # Get the website by id and ensure it belongs to the current user
+    user_id = socket.assigns.current_user.id
 
-    # Update the website in the stream with the new thumbnail
-    socket =
-      socket
-      |> stream_insert(:websites, website, at: -1)
-      |> push_event("hide-loading", %{id: website_id})
+    # Safely try to get the website, ignore if it's not found or doesn't belong to user
+    website =
+      try do
+        Websites.get_website_for_user!(website_id, user_id)
+      rescue
+        Ecto.NoResultsError -> nil
+      end
 
-    {:noreply, socket}
+    if website do
+      # Update the website in the stream with the new thumbnail
+      socket =
+        socket
+        |> stream_insert(:websites, website, at: -1)
+        |> push_event("hide-loading", %{id: website_id})
+
+      {:noreply, socket}
+    else
+      # Ignore updates for websites that don't belong to this user
+      {:noreply, socket}
+    end
   end
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    website = Websites.get_website!(id)
-    {:ok, _} = Websites.delete_website(website)
+    user_id = socket.assigns.current_user.id
+    website = Websites.get_website_for_user!(id, user_id)
+    {:ok, _} = Websites.delete_website(website, user_id: user_id)
 
     # Unsubscribe from this website's thumbnail updates
     Phoenix.PubSub.unsubscribe(Uptimer.PubSub, "website:thumbnail:#{website.id}")
 
     # Update counts
-    user_id = socket.assigns.current_user.id
     website_count = Websites.count_websites_for_user(user_id)
     thumbnail_count = Websites.count_thumbnails_for_user(user_id)
 
@@ -101,12 +116,12 @@ defmodule UptimerWeb.WebsiteLive.Index do
 
   @impl true
   def handle_event("toggle_thumbnail", %{"id" => id}, socket) do
-    website = Websites.get_website!(id)
+    user_id = socket.assigns.current_user.id
+    website = Websites.get_website_for_user!(id, user_id)
 
-    case Websites.toggle_thumbnail(website) do
+    case Websites.toggle_thumbnail(website, user_id: user_id) do
       {:ok, updated_website} ->
         # Update counts
-        user_id = socket.assigns.current_user.id
         thumbnail_count = Websites.count_thumbnails_for_user(user_id)
 
         {:noreply,
@@ -124,15 +139,16 @@ defmodule UptimerWeb.WebsiteLive.Index do
 
   @impl true
   def handle_event("refresh_thumbnail", %{"id" => id}, socket) do
+    user_id = socket.assigns.current_user.id
     # Show loading indicator via JS push_event
     socket =
       socket
       |> push_event("show-loading", %{id: id})
 
-    website = Websites.get_website!(id)
+    website = Websites.get_website_for_user!(id, user_id)
 
     # Attempt to refresh the thumbnail
-    case Websites.refresh_thumbnail(website) do
+    case Websites.refresh_thumbnail(website, user_id: user_id) do
       {:ok, updated_website} ->
         # Hide loading indicator and update the website card
         {:noreply,

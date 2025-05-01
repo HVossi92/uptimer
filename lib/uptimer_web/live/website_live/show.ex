@@ -10,10 +10,12 @@ defmodule UptimerWeb.WebsiteLive.Show do
 
   @impl true
   def handle_params(%{"id" => id}, _, socket) do
+    user_id = socket.assigns.current_user.id
+
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:website, Websites.get_website!(id))}
+     |> assign(:website, Websites.get_website_for_user!(id, user_id))}
   end
 
   defp page_title(:show), do: "Show Website"
