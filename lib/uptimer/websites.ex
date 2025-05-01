@@ -23,11 +23,23 @@ defmodule Uptimer.Websites do
   end
 
   def list_websites_for_user(user_id) do
-    # Repo.all(from w in Website, where: ilike(w.id, ^user_id))
-    IO.inspect(user_id)
-    websites = Repo.all(from w in Website, where: w.user_id == ^user_id)
-    IO.inspect(websites)
-    websites
+    Repo.all(from w in Website, where: w.user_id == ^user_id)
+  end
+
+  @doc """
+  Counts the number of websites for a given user.
+  """
+  def count_websites_for_user(user_id) do
+    Repo.one(from w in Website, where: w.user_id == ^user_id, select: count(w.id))
+  end
+
+  @doc """
+  Counts the number of websites with thumbnails enabled for a given user.
+  """
+  def count_thumbnails_for_user(user_id) do
+    Repo.one(
+      from w in Website, where: w.user_id == ^user_id and w.thumbnail == true, select: count(w.id)
+    )
   end
 
   @doc """
@@ -59,28 +71,72 @@ defmodule Uptimer.Websites do
 
   """
   def create_website(attrs \\ %{}, user_id) do
-    {:ok, response} =
-      Finch.build(:get, attrs["address"])
-      |> add_browser_headers()
-      |> Finch.request(Uptimer.Finch)
+    # Check if the user has reached the maximum number of websites (32)
+    if count_websites_for_user(user_id) >= 32 do
+      {:error, "Maximum number of websites (32) reached for free accounts"}
+    else
+      # Try to make a request to the website, but handle possible connection errors
+      request_result =
+        try do
+          Finch.build(:get, attrs["address"])
+          |> add_browser_headers()
+          |> Finch.request(Uptimer.Finch)
+        rescue
+          _ -> {:error, :invalid_url}
+        catch
+          _ -> {:error, :timeout}
+        end
 
-    attrs = Map.put(attrs, "status", Integer.to_string(response.status))
-    # Add user_id to the attributes
-    attrs = Map.put(attrs, "user_id", user_id)
+      # Process the request results
+      case request_result do
+        {:ok, response} ->
+          # Successfully connected to the website
+          attrs = Map.put(attrs, "status", Integer.to_string(response.status))
+          # Add user_id to the attributes
+          attrs = Map.put(attrs, "user_id", user_id)
 
-    result =
-      %Website{}
-      |> Website.changeset(attrs)
-      |> Repo.insert()
+          # Set thumbnail to false by default to prevent automatic enabling
+          # Users will need to explicitly enable thumbnails
+          attrs = Map.put_new(attrs, "thumbnail", false)
 
-    case result do
-      {:ok, website} ->
-        # Generate thumbnail asynchronously
-        Task.start(fn -> generate_and_save_thumbnail(website) end)
-        result
+          result =
+            %Website{}
+            |> Website.changeset(attrs)
+            |> Repo.insert()
 
-      error ->
-        error
+          case result do
+            {:ok, website} ->
+              # Generate thumbnail asynchronously if thumbnail is enabled
+              # However, this should now be false by default
+              if website.thumbnail do
+                Task.start(fn -> generate_and_save_thumbnail(website) end)
+              end
+
+              result
+
+            error ->
+              error
+          end
+
+        {:error, %Mint.TransportError{reason: reason}} ->
+          # Handle specific transport errors
+          error_message =
+            case reason do
+              :nxdomain -> "Domain not found. Please check the URL."
+              :timeout -> "Connection timed out. Website might be unavailable."
+              :econnrefused -> "Connection refused. Website might be unavailable."
+              :closed -> "Connection closed unexpectedly."
+              _ -> "Error connecting to website: #{inspect(reason)}"
+            end
+
+          {:error, error_message}
+
+        {:error, %Mint.HTTPError{}} ->
+          {:error, "Invalid HTTP response from website"}
+
+        {:error, _} ->
+          {:error, "Could not connect to website. Please check the URL."}
+      end
     end
   end
 
@@ -204,9 +260,22 @@ defmodule Uptimer.Websites do
       {:ok, %Website{}}
   """
   def toggle_thumbnail(%Website{} = website) do
-    update_website(website, %{
-      "thumbnail" => !website.thumbnail
-    })
+    # If toggling from false to true, check the thumbnail limit
+    if !website.thumbnail do
+      # Check if user already has 4 thumbnails
+      if count_thumbnails_for_user(website.user_id) >= 4 do
+        {:error, "Maximum number of thumbnails (4) reached for free accounts"}
+      else
+        update_website(website, %{
+          "thumbnail" => true
+        })
+      end
+    else
+      # Disabling a thumbnail is always allowed
+      update_website(website, %{
+        "thumbnail" => false
+      })
+    end
   end
 
   def refresh_thumbnail(%Website{} = website) do

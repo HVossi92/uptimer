@@ -95,7 +95,8 @@ Check the project's current status:
 
 - [x] Use iframes whenever possible to avoid overhead
 - [x] Make sure thumbnails are small
-- [ ] Limit thumbnails to 4 per free account
+- [x] Limit iframes to 32 per free account
+- [x] Limit thumbnails to 4 per free account
 - [x] User deletion
 - [ ] Make sign-up process nice
 - [ ] Fix tests
@@ -113,3 +114,4 @@ Check the project's current status:
 - [ ] Fix "Signup Password can't be blank" message
 - [x] Implement privacy policy
 - [x] Implement terms of service
+- [ ] Take redirects into account

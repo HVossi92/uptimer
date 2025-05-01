@@ -5,12 +5,27 @@ defmodule UptimerWeb.WebsiteLive.Index do
   alias Uptimer.Websites.Website
 
   @impl true
-  def mount(_params, _session, socket) do
+  # def mount(_params, _session, socket) do
+  def mount(params, _, %Phoenix.LiveView.Socket{} = socket) do
+    # Get user ID
+    user_id = socket.assigns.current_user.id
+
     # Stream initial websites
-    websites = Websites.list_websites_for_user(socket.assigns.current_user.id)
+    websites = Websites.list_websites_for_user(user_id)
+
+    # Get counts for limits
+    website_count = Websites.count_websites_for_user(user_id)
+    thumbnail_count = Websites.count_thumbnails_for_user(user_id)
 
     socket =
-      stream(socket, :websites, websites)
+      socket
+      |> stream(:websites, websites)
+      |> assign(:website_count, website_count)
+      |> assign(:thumbnail_count, thumbnail_count)
+      # Free account limit
+      |> assign(:max_websites, 32)
+      # Free account limit
+      |> assign(:max_thumbnails, 4)
 
     # Subscribe to thumbnail generation events for all websites
     if connected?(socket) do
@@ -67,15 +82,39 @@ defmodule UptimerWeb.WebsiteLive.Index do
     # Unsubscribe from this website's thumbnail updates
     Phoenix.PubSub.unsubscribe(Uptimer.PubSub, "website:thumbnail:#{website.id}")
 
-    {:noreply, stream_delete(socket, :websites, website)}
+    # Update counts
+    user_id = socket.assigns.current_user.id
+    website_count = Websites.count_websites_for_user(user_id)
+    thumbnail_count = Websites.count_thumbnails_for_user(user_id)
+
+    {:noreply,
+     socket
+     |> stream_delete(:websites, website)
+     |> assign(:website_count, website_count)
+     |> assign(:thumbnail_count, thumbnail_count)}
   end
 
   @impl true
   def handle_event("toggle_thumbnail", %{"id" => id}, socket) do
     website = Websites.get_website!(id)
-    {:ok, updated_website} = Websites.toggle_thumbnail(website)
 
-    {:noreply, stream_insert(socket, :websites, updated_website)}
+    case Websites.toggle_thumbnail(website) do
+      {:ok, updated_website} ->
+        # Update counts
+        user_id = socket.assigns.current_user.id
+        thumbnail_count = Websites.count_thumbnails_for_user(user_id)
+
+        {:noreply,
+         socket
+         |> stream_insert(:websites, updated_website)
+         |> assign(:thumbnail_count, thumbnail_count)}
+
+      {:error, error_message} when is_binary(error_message) ->
+        {:noreply, put_flash(socket, :error, error_message)}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to toggle thumbnail")}
+    end
   end
 
   @impl true
@@ -95,10 +134,19 @@ defmodule UptimerWeb.WebsiteLive.Index do
         # Subscribe to thumbnail updates for the new website
         Phoenix.PubSub.subscribe(Uptimer.PubSub, "website:thumbnail:#{website.id}")
 
+        # Update counts
+        website_count = Websites.count_websites_for_user(user_id)
+        thumbnail_count = Websites.count_thumbnails_for_user(user_id)
+
         {:noreply,
          socket
          |> stream_insert(:websites, website)
+         |> assign(:website_count, website_count)
+         |> assign(:thumbnail_count, thumbnail_count)
          |> put_flash(:info, "Website created successfully")}
+
+      {:error, error_message} when is_binary(error_message) ->
+        {:noreply, put_flash(socket, :error, error_message)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply,

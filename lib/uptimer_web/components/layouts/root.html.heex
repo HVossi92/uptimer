@@ -35,10 +35,13 @@
 
       // Timer functionality
       let seconds = 10;
+      let timerPaused = false;
       const timerElement = document.getElementById('timer');
       const timerMobileElement = document.getElementById('timer-mobile');
 
       function updateTimer() {
+        if (timerPaused) return;
+        
         if (timerElement) timerElement.textContent = seconds;
         if (timerMobileElement) timerMobileElement.textContent = seconds;
         
@@ -61,6 +64,109 @@
           window.refreshAllWebsites();
         }
       }
+
+      // Function to check if website form is visible
+      function isWebsiteFormVisible() {
+        const form = document.getElementById('website-form');
+        return form && window.getComputedStyle(form).display !== 'none';
+      }
+
+      // Function to pause timer
+      function pauseTimer() {
+        timerPaused = true;
+        if (timerElement) timerElement.parentNode.classList.add('opacity-50');
+        if (timerMobileElement) timerMobileElement.parentNode.classList.add('opacity-50');
+      }
+
+      // Function to resume timer
+      function resumeTimer() {
+        timerPaused = false;
+        if (timerElement) timerElement.parentNode.classList.remove('opacity-50');
+        if (timerMobileElement) timerMobileElement.parentNode.classList.remove('opacity-50');
+      }
+
+      // Add event listeners for LiveView events
+      window.addEventListener('phx:show', function(e) {
+        if (e.target.id === 'website-form') {
+          pauseTimer();
+        }
+      });
+
+      window.addEventListener('phx:hide', function(e) {
+        if (e.target.id === 'website-form') {
+          resumeTimer();
+        }
+      });
+
+      // Handle direct DOM clicks
+      document.addEventListener('click', function(e) {
+        // When add card is clicked
+        if (e.target.closest('#add-card') && !isWebsiteFormVisible()) {
+          pauseTimer();
+        }
+        
+        // When cancel button is clicked
+        if (e.target.matches('button[type="button"]') && 
+            e.target.closest('#website-form') && 
+            e.target.textContent.trim() === 'Cancel') {
+          resumeTimer();
+        }
+        
+        // When clicking outside the form (to close it)
+        if (!e.target.closest('#website-form') && 
+            !e.target.closest('#add-card') && 
+            isWebsiteFormVisible()) {
+          resumeTimer();
+        }
+      });
+
+      // Listen for form submission to resume timer
+      document.addEventListener('submit', function(e) {
+        if (e.target.closest('#website-form')) {
+          resumeTimer();
+        }
+      });
+
+      // Set up MutationObserver to watch for form visibility changes
+      const websitesGrid = document.getElementById('websites-grid');
+      const addCard = document.getElementById('add-card');
+
+      function setupObserver(element) {
+        if (!element) return;
+        
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function() {
+            const form = document.getElementById('website-form');
+            if (form) {
+              if (window.getComputedStyle(form).display !== 'none') {
+                pauseTimer();
+              } else {
+                resumeTimer();
+              }
+            }
+          });
+        });
+        
+        observer.observe(element, { 
+          attributes: true, 
+          childList: true, 
+          subtree: true,
+          attributeFilter: ['style', 'class'] 
+        });
+      }
+
+      // Observe both the grid and the add card
+      setupObserver(websitesGrid);
+      setupObserver(addCard);
+
+      // Initial check on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        if (isWebsiteFormVisible()) {
+          pauseTimer();
+        } else {
+          resumeTimer();
+        }
+      });
     </script>
   </body>
 </html>

@@ -6,7 +6,44 @@
 <div class="h-full bg-gradient-radial-light dark:bg-gradient-radial-dark">
   <div class="content w-full py-8">
     <div class="container mx-auto px-4 sm:px-6">
-      <!-- Website Grid -->
+      <!-- Usage Indicators -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+        <div class="px-3 py-2 bg-white/90 dark:bg-white/10 rounded-lg shadow-sm backdrop-blur-sm">
+          <div class="flex items-center justify-between gap-2">
+            <h2 class="text-base font-semibold text-gray-800 dark:text-white">Limits</h2>
+            <div class="flex items-center space-x-3">
+              <div class="flex items-center">
+                <span class="text-xs text-gray-500 dark:text-gray-400 mr-1">Sites:</span>
+                <span class="text-xs font-medium text-gray-800 dark:text-white">
+                  {@website_count}/{@max_websites}
+                </span>
+                <div class="w-12 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full ml-1 overflow-hidden">
+                  <div
+                    class="h-full bg-blue-500 rounded-full"
+                    style={"width: #{(@website_count / @max_websites) * 100}%"}
+                  >
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <span class="text-xs text-gray-500 dark:text-gray-400 mr-1">Thumbs:</span>
+                <span class="text-xs font-medium text-gray-800 dark:text-white">
+                  {@thumbnail_count}/{@max_thumbnails}
+                </span>
+                <div class="w-12 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full ml-1 overflow-hidden">
+                  <div
+                    class="h-full bg-blue-500 rounded-full"
+                    style={"width: #{(@thumbnail_count / @max_thumbnails) * 100}%"}
+                  >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+<!-- Website Grid -->
       <div
         id="websites-grid"
         phx-update="stream"
@@ -128,9 +165,6 @@
               </div>
             </div>
             <div class="p-4 bg-gray-50 dark:bg-black/20 flex justify-between items-center">
-              <span class="text-sm text-gray-500 dark:text-gray-300 truncate">
-                Last checked: Just now
-              </span>
               <button
                 class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 focus:outline-none transition-colors ml-2"
                 phx-click="delete"
@@ -146,7 +180,7 @@
 <!-- Add New Website Card -->
         <div
           id="add-card"
-          class="group bg-white/90 dark:bg-white/5 backdrop-blur-sm rounded-xl border-2 border-gray-200 dark:border-white/10 flex flex-col items-center justify-center h-full min-h-[200px] transition-all duration-300 hover:bg-white hover:border-blue-200 dark:hover:bg-white/10 dark:hover:border-white/20 cursor-pointer shadow-lg"
+          class="group bg-white/90 dark:bg-white/5 backdrop-blur-sm rounded-xl border-2 border-gray-200 dark:border-white/10 flex flex-col items-center justify-center h-[340px] min-h-[200px] transition-all duration-300 hover:bg-white hover:border-blue-200 dark:hover:bg-white/10 dark:hover:border-white/20 cursor-pointer shadow-lg"
           phx-click={JS.show(to: "#website-form") |> JS.hide(to: "#add-card-content")}
           phx-click-away={JS.hide(to: "#website-form") |> JS.show(to: "#add-card-content")}
         >
@@ -162,7 +196,7 @@
 
           <div
             id="website-form"
-            class="absolute inset-0 w-full h-full p-6 hidden bg-white dark:bg-gray-800/95 backdrop-blur-md rounded-xl border border-gray-200 dark:border-white/20 z-10"
+            class="absolute inset-0 w-full h-full p-6 hidden bg-white dark:bg-gray-800/95 backdrop-blur-md rounded-xl border border-gray-200 dark:border-white/20 z-10 overflow-y-auto"
             phx-click-away={JS.hide(to: "#website-form") |> JS.show(to: "#add-card-content")}
           >
             <.form for={%{}} phx-submit="save" class="space-y-4">
@@ -198,20 +232,6 @@
                   placeholder="https://example.com"
                   pattern="^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$"
                 />
-              </div>
-              <div class="flex items-center mt-2">
-                <input
-                  type="checkbox"
-                  id="website-thumbnail"
-                  name="website[thumbnail]"
-                  class="h-4 w-4 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-500/50 border-gray-300 dark:border-white/20 rounded"
-                />
-                <label
-                  for="website-thumbnail"
-                  class="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Use thumbnail instead of live preview
-                </label>
               </div>
               <div class="flex justify-end pt-4 gap-3">
                 <button
