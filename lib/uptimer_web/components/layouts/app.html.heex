@@ -35,7 +35,7 @@
               </li>
               <li>
                 <.link
-                  href={~p"/users/settings"}
+                  navigate={~p"/users/settings"}
                   class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center transition-colors"
                 >
                   <span class="mr-1">
@@ -59,7 +59,7 @@
             <% else %>
               <li>
                 <.link
-                  href={~p"/users/register"}
+                  navigate={~p"/users/register"}
                   class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center transition-colors"
                 >
                   <span class="mr-1"><.icon name="hero-user-plus-solid" class="h-4 w-4" /></span>
@@ -68,7 +68,7 @@
               </li>
               <li>
                 <.link
-                  href={~p"/users/log_in"}
+                  navigate={~p"/users/log_in"}
                   class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center transition-colors"
                 >
                   <span class="mr-1">
