@@ -203,11 +203,16 @@ defmodule UptimerWeb.WebsiteLive.Index do
          |> put_flash(:info, "Website created successfully")}
 
       {:error, error_message} when is_binary(error_message) ->
-        {:noreply, put_flash(socket, :error, "#{error_message} (Tried: #{normalized_address})")}
+        {:noreply,
+         socket
+         |> put_flash(:error, "#{error_message} (Tried: #{normalized_address})")
+         |> push_event("hide-form", %{})}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply,
-         put_flash(socket, :error, "Error creating website: #{error_to_string(changeset)}")}
+         socket
+         |> put_flash(:error, "Error creating website: #{error_to_string(changeset)}")
+         |> push_event("hide-form", %{})}
     end
   end
 

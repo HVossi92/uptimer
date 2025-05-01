@@ -282,5 +282,10 @@ window.addEventListener("phx:hide-form", (e) => {
   if (websiteCount >= maxWebsites) {
     document.querySelector("#add-card")?.remove();
   }
+
+  // Explicitly resume the timer when the form is hidden
+  if (window.resumeTimer) {
+    window.resumeTimer();
+  }
 });
 

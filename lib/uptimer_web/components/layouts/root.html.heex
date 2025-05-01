@@ -93,6 +93,10 @@
       const timerElement = document.getElementById('timer');
       const timerMobileElement = document.getElementById('timer-mobile');
 
+      // Initialize timer elements with the correct starting value right away
+      if (timerElement) timerElement.textContent = seconds;
+      if (timerMobileElement) timerMobileElement.textContent = seconds;
+
       function updateTimer() {
         if (timerPaused) return;
         
@@ -108,8 +112,7 @@
         }
       }
 
-      // Initial call and set interval
-      updateTimer();
+      // Set interval for timer updates (don't call updateTimer immediately as we already initialized the elements)
       setInterval(updateTimer, 1000);
 
       function refreshWebsites() {
@@ -138,6 +141,10 @@
         if (timerElement) timerElement.parentNode.classList.remove('opacity-50');
         if (timerMobileElement) timerMobileElement.parentNode.classList.remove('opacity-50');
       }
+
+      // Expose functions to the window object
+      window.resumeTimer = resumeTimer;
+      window.pauseTimer = pauseTimer;
 
       // Add event listeners for LiveView events
       window.addEventListener('phx:show', function(e) {

@@ -207,7 +207,14 @@ defmodule Uptimer.Websites do
     # Ensure the caller owns this website
     unless opts[:skip_ownership_check] do
       # If user_id is provided and doesn't match the website's user_id, return error
-      if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+      user_id =
+        if is_map(opts) do
+          Map.get(opts, :user_id)
+        else
+          Keyword.get(opts, :user_id)
+        end
+
+      if user_id && website.user_id != user_id do
         {:error, "You don't have permission to update this website"}
       else
         # Continue with the update
@@ -384,7 +391,14 @@ defmodule Uptimer.Websites do
   """
   def toggle_thumbnail(%Website{} = website, opts \\ []) do
     # Ensure the caller owns this website
-    if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+    user_id =
+      if is_map(opts) do
+        Map.get(opts, :user_id)
+      else
+        Keyword.get(opts, :user_id)
+      end
+
+    if user_id && website.user_id != user_id do
       {:error, "You don't have permission to modify this website"}
     else
       # If toggling from false to true, check the thumbnail limit
@@ -416,7 +430,14 @@ defmodule Uptimer.Websites do
 
   def refresh_thumbnail(%Website{} = website, opts \\ []) do
     # Ensure the caller owns this website
-    if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+    user_id =
+      if is_map(opts) do
+        Map.get(opts, :user_id)
+      else
+        Keyword.get(opts, :user_id)
+      end
+
+    if user_id && website.user_id != user_id do
       {:error, "You don't have permission to refresh thumbnails for this website"}
     else
       # First delete existing thumbnails to force a fresh generation
@@ -440,7 +461,14 @@ defmodule Uptimer.Websites do
   """
   def delete_thumbnail(%Website{} = website, opts \\ []) do
     # Ensure the caller owns this website
-    if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+    user_id =
+      if is_map(opts) do
+        Map.get(opts, :user_id)
+      else
+        Keyword.get(opts, :user_id)
+      end
+
+    if user_id && website.user_id != user_id do
       {:error, "You don't have permission to modify thumbnails for this website"}
     else
       # Delete thumbnail files
