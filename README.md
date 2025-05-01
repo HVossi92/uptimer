@@ -98,20 +98,21 @@ Check the project's current status:
 - [x] Limit iframes to 32 per free account
 - [x] Limit thumbnails to 4 per free account
 - [x] User deletion
-- [ ] Make sign-up process nice
-- [ ] Fix tests
 - [x] Add github link to page
 - [x] Add landing page
 - [x] Implement automatic refresh
 - [x] Fix timer on mobile view
 - [x] Show unavailable websites as offline & red
-- [ ] Implement edit website
-- [ ] Allow inputs without http or with www
 - [x] Redirect "users/register" to "/"
 - [x] Add fk to websites -> users
 - [x] Fix /users/settings layout
 - [x] Link back to "/" on header icon and title
-- [ ] Fix "Signup Password can't be blank" message
 - [x] Implement privacy policy
 - [x] Implement terms of service
+- [ ] Add loading indicator to website cards
 - [ ] Take redirects into account
+- [ ] Make sign-up process nice
+- [ ] Fix tests
+- [x] Fix "Signup Password can't be blank" message
+- [x] Implement edit website
+- [x] Allow inputs without http or with www

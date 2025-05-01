@@ -75,16 +75,35 @@ defmodule Uptimer.Websites do
     if count_websites_for_user(user_id) >= 32 do
       {:error, "Maximum number of websites (32) reached for free accounts"}
     else
+      # Normalize the address before making the request
+      address = normalize_url(attrs["address"])
+      attrs = Map.put(attrs, "address", address)
+
       # Try to make a request to the website, but handle possible connection errors
       request_result =
         try do
-          Finch.build(:get, attrs["address"])
-          |> add_browser_headers()
-          |> Finch.request(Uptimer.Finch)
+          secure_result = make_secure_request(address)
+
+          case secure_result do
+            {:ok, _} = response ->
+              response
+
+            # If secure request fails, try with insecure options
+            {:error, %Mint.TransportError{reason: {:tls_alert, _}}} ->
+              # This is likely a certificate issue, try with insecure options
+              make_insecure_request(address)
+
+            error ->
+              error
+          end
         rescue
-          _ -> {:error, :invalid_url}
+          error ->
+            IO.inspect(error, label: "Error in create_website")
+            {:error, :invalid_url}
         catch
-          _ -> {:error, :timeout}
+          error ->
+            IO.inspect(error, label: "Caught in create_website")
+            {:error, :timeout}
         end
 
       # Process the request results
@@ -122,11 +141,23 @@ defmodule Uptimer.Websites do
           # Handle specific transport errors
           error_message =
             case reason do
-              :nxdomain -> "Domain not found. Please check the URL."
-              :timeout -> "Connection timed out. Website might be unavailable."
-              :econnrefused -> "Connection refused. Website might be unavailable."
-              :closed -> "Connection closed unexpectedly."
-              _ -> "Error connecting to website: #{inspect(reason)}"
+              :nxdomain ->
+                "Domain not found. Please check the URL."
+
+              :timeout ->
+                "Connection timed out. Website might be unavailable."
+
+              :econnrefused ->
+                "Connection refused. Website might be unavailable."
+
+              :closed ->
+                "Connection closed unexpectedly."
+
+              {:tls_alert, _} ->
+                "SSL certificate error. If this is an IP address with HTTPS, try using HTTP instead."
+
+              _ ->
+                "Error connecting to website: #{inspect(reason)}"
             end
 
           {:error, error_message}
@@ -153,11 +184,31 @@ defmodule Uptimer.Websites do
 
   """
   def update_website(%Website{} = website, attrs, opts \\ []) do
-    {:ok, response} =
-      Finch.build(:get, website.address)
-      |> add_browser_headers()
-      |> Finch.request(Uptimer.Finch)
+    # If address is being updated, normalize it first
+    attrs =
+      if Map.has_key?(attrs, "address") do
+        Map.put(attrs, "address", normalize_url(attrs["address"]))
+      else
+        attrs
+      end
 
+    request_result =
+      secure_result = make_secure_request(website.address)
+
+    case secure_result do
+      {:ok, _} = response ->
+        response
+
+      # If secure request fails, try with insecure options
+      {:error, %Mint.TransportError{reason: {:tls_alert, _}}} ->
+        # This is likely a certificate issue, try with insecure options
+        make_insecure_request(website.address)
+
+      error ->
+        error
+    end
+
+    {:ok, response} = request_result
     attrs = Map.put(attrs, "status", Integer.to_string(response.status))
 
     result =
@@ -209,10 +260,23 @@ defmodule Uptimer.Websites do
   def update_website(%Website{} = website) do
     IO.puts("Refreshing thumbnail for #{website.address}")
     # Get current website status
-    {:ok, response} =
-      Finch.build(:get, website.address)
-      |> add_browser_headers()
-      |> Finch.request(Uptimer.Finch)
+    request_result =
+      secure_result = make_secure_request(website.address)
+
+    case secure_result do
+      {:ok, _} = response ->
+        response
+
+      # If secure request fails, try with insecure options
+      {:error, %Mint.TransportError{reason: {:tls_alert, _}}} ->
+        # This is likely a certificate issue, try with insecure options
+        make_insecure_request(website.address)
+
+      error ->
+        error
+    end
+
+    {:ok, response} = request_result
 
     # Only update the status attribute
     update_website(website, %{"status" => Integer.to_string(response.status)})
@@ -384,5 +448,58 @@ defmodule Uptimer.Websites do
       ],
       request.body
     )
+  end
+
+  # Utility function to normalize URLs for connections
+  def normalize_url(nil), do: nil
+
+  def normalize_url(url) do
+    # Trim whitespace
+    url = String.trim(url)
+
+    # Check if it's an IP address
+    is_ip_address = Regex.match?(~r/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/, url)
+
+    # Only strip www. if it's not an IP address
+    url =
+      if !is_ip_address && Regex.match?(~r/^www\./i, url) do
+        String.replace(url, ~r/^www\./i, "")
+      else
+        url
+      end
+
+    # Add https:// prefix if no protocol specified
+    if Regex.match?(~r/^https?:\/\//i, url) do
+      # Also strip www. from URLs with http/https if not an IP address
+      if !is_ip_address && Regex.match?(~r/^https?:\/\/www\./i, url) do
+        String.replace(url, ~r/^(https?:\/\/)www\./i, "\\1")
+      else
+        url
+      end
+    else
+      "https://#{url}"
+    end
+  end
+
+  # Make a request with normal certificate validation
+  defp make_secure_request(url) do
+    Finch.build(:get, url)
+    |> add_browser_headers()
+    |> Finch.request(Uptimer.Finch, receive_timeout: 10_000)
+  end
+
+  # Make a request with insecure certificate validation for self-signed or invalid certs
+  defp make_insecure_request(url) do
+    # Try HTTP if HTTPS fails with certificate errors
+    insecure_url =
+      if String.starts_with?(url, "https://") do
+        String.replace(url, "https://", "http://")
+      else
+        url
+      end
+
+    Finch.build(:get, insecure_url)
+    |> add_browser_headers()
+    |> Finch.request(Uptimer.Finch, receive_timeout: 10_000)
   end
 end

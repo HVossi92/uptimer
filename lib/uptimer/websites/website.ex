@@ -19,5 +19,19 @@ defmodule Uptimer.Websites.Website do
     website
     |> cast(attrs, [:name, :address, :status, :thumbnail_url, :thumbnail, :user_id])
     |> validate_required([:name, :address, :status, :user_id])
+    |> normalize_address()
+  end
+
+  # Add HTTP prefix if missing and handle www
+  defp normalize_address(changeset) do
+    case get_change(changeset, :address) do
+      nil ->
+        changeset
+
+      address ->
+        # Use the normalize_url function from Websites context
+        normalized_address = Uptimer.Websites.normalize_url(address)
+        put_change(changeset, :address, normalized_address)
+    end
   end
 end

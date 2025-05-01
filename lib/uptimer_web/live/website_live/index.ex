@@ -129,6 +129,18 @@ defmodule UptimerWeb.WebsiteLive.Index do
   def handle_event("save", %{"website" => website_params}, socket) do
     user_id = socket.assigns.current_user.id
 
+    # Normalize address before creating
+    address = website_params["address"]
+
+    normalized_address =
+      if address && !Regex.match?(~r/^https?:\/\//i, String.trim(address)) do
+        "https://#{String.trim(address)}"
+      else
+        address
+      end
+
+    website_params = Map.put(website_params, "address", normalized_address)
+
     case Websites.create_website(Map.put(website_params, "status", "ok"), user_id) do
       {:ok, website} ->
         # Subscribe to thumbnail updates for the new website
@@ -146,7 +158,7 @@ defmodule UptimerWeb.WebsiteLive.Index do
          |> put_flash(:info, "Website created successfully")}
 
       {:error, error_message} when is_binary(error_message) ->
-        {:noreply, put_flash(socket, :error, error_message)}
+        {:noreply, put_flash(socket, :error, "#{error_message} (Tried: #{normalized_address})")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply,

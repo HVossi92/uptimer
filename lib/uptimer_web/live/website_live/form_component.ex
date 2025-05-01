@@ -21,6 +21,10 @@ defmodule UptimerWeb.WebsiteLive.FormComponent do
       >
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:address]} type="text" label="Address" />
+        <div class="text-sm text-gray-600 mt-1 mb-4">
+          You can enter URLs with or without http(s):// prefix and with or without www
+          (e.g., example.com, www.example.com, or https://example.com)
+        </div>
         <.input field={@form[:status]} type="text" label="Status" />
         <.input field={@form[:thumbnail]} type="checkbox" label="Use thumbnail instead of iframe" />
         <:actions>
@@ -32,10 +36,11 @@ defmodule UptimerWeb.WebsiteLive.FormComponent do
   end
 
   @impl true
-  def update(%{website: website} = assigns, socket) do
+  def update(%{website: website, current_user: current_user} = assigns, socket) do
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:current_user, current_user)
      |> assign_new(:form, fn ->
        to_form(Websites.change_website(website))
      end)}
@@ -67,7 +72,9 @@ defmodule UptimerWeb.WebsiteLive.FormComponent do
   end
 
   defp save_website(socket, :new, website_params) do
-    case Websites.create_website(website_params) do
+    user_id = socket.assigns.current_user.id
+
+    case Websites.create_website(website_params, user_id) do
       {:ok, website} ->
         notify_parent({:saved, website})
 
@@ -77,6 +84,15 @@ defmodule UptimerWeb.WebsiteLive.FormComponent do
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, form: to_form(changeset))}
+
+      {:error, error_message} when is_binary(error_message) ->
+        changeset =
+          socket.assigns.website
+          |> Websites.change_website(website_params)
+          |> Map.put(:action, :validate)
+          |> Map.put(:errors, address: {"#{error_message}", []})
+
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
