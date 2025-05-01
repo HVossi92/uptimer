@@ -109,10 +109,10 @@ Check the project's current status:
 - [x] Link back to "/" on header icon and title
 - [x] Implement privacy policy
 - [x] Implement terms of service
-- [ ] Add loading indicator to website cards
-- [ ] Take redirects into account
-- [ ] Make sign-up process nice
-- [ ] Fix tests
+- [x] Improve thumbnail update process
 - [x] Fix "Signup Password can't be blank" message
-- [x] Implement edit website
 - [x] Allow inputs without http or with www
+- [ ] Make sign-up process nice
+- [ ] Implement edit website
+- [ ] Take redirects into account
+- [ ] Fix tests

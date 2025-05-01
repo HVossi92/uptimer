@@ -53,15 +53,27 @@
           <!-- Website Card -->
           <div
             id={dom_id}
-            class={"group bg-white/10 dark:bg-gray-800/30 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border-t-4 #{if (website.status) >= 400, do: "border-red-500", else: "border-green-500"} hover:transform hover:scale-[1.02] transition-all duration-300 bg-white/90 dark:bg-white/10"}
+            class={"group bg-white/10 dark:bg-gray-800/30 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border-t-4 #{cond do
+                 is_integer(website.status) && website.status >= 400 -> "border-red-500"
+                 is_binary(website.status) && (website.status == "dns_error" || website.status == "error") -> "border-red-500" 
+                 true -> "border-green-500"
+               end} hover:transform hover:scale-[1.02] transition-all duration-300 bg-white/90 dark:bg-white/10"}
           >
             <div class="p-4 sm:p-5">
               <div class="flex justify-between items-center mb-3">
                 <h3 class="font-bold text-gray-800 dark:text-gray-100 text-base sm:text-lg truncate">
                   {website.name}
                 </h3>
-                <span class={"px-3 py-1 text-xs font-medium rounded-full ml-2 whitespace-nowrap #{if (website.status) >= 400, do: "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-200", else: "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200"}"}>
-                  {website.status}
+                <span class={"px-3 py-1 text-xs font-medium rounded-full ml-2 whitespace-nowrap #{cond do
+                     is_integer(website.status) && website.status >= 400 -> "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-200"
+                     is_binary(website.status) && (website.status == "dns_error" || website.status == "error") -> "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-200"
+                     true -> "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200"
+                   end}"}>
+                  {cond do
+                    website.status == "dns_error" -> "DNS Error"
+                    website.status == "error" -> "Error"
+                    true -> website.status
+                  end}
                 </span>
               </div>
               <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 truncate">
@@ -128,7 +140,7 @@
                       class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/20 transition-colors text-xs flex items-center gap-1.5"
                       style="display: none"
                     >
-                      <.icon name="hero-refresh" class="h-3.5 w-3.5" />
+                      <.icon name="hero-arrow-path" class="h-3.5 w-3.5" />
                       <span>Refresh</span>
                     </button>
                   </div>
@@ -159,7 +171,7 @@
                     class="w-full h-full object-cover absolute inset-0 thumbnail-debug"
                     id={"thumbnail-#{website.id}"}
                     style={"display: #{if website.thumbnail, do: "block", else: "none"};"}
-                    onerror="this.onerror=null; this.src='/images/no-preview.svg';"
+                    onerror="this.onerror=null; this.src='/images/no-preview.svg'; this.classList.add('bg-gray-100');"
                   />
                 </div>
               </div>

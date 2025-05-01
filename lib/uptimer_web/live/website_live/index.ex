@@ -71,7 +71,12 @@ defmodule UptimerWeb.WebsiteLive.Index do
     website = Websites.get_website!(website_id)
 
     # Update the website in the stream with the new thumbnail
-    {:noreply, stream_insert(socket, :websites, website, at: -1)}
+    socket =
+      socket
+      |> stream_insert(:websites, website, at: -1)
+      |> push_event("hide-loading", %{id: website_id})
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -119,10 +124,29 @@ defmodule UptimerWeb.WebsiteLive.Index do
 
   @impl true
   def handle_event("refresh_thumbnail", %{"id" => id}, socket) do
-    website = Websites.get_website!(id)
-    {:ok, updated_website} = Websites.refresh_thumbnail(website)
+    # Show loading indicator via JS push_event
+    socket =
+      socket
+      |> push_event("show-loading", %{id: id})
 
-    {:noreply, stream_insert(socket, :websites, updated_website)}
+    website = Websites.get_website!(id)
+
+    # Attempt to refresh the thumbnail
+    case Websites.refresh_thumbnail(website) do
+      {:ok, updated_website} ->
+        # Hide loading indicator and update the website card
+        {:noreply,
+         socket
+         |> push_event("hide-loading", %{id: id})
+         |> stream_insert(:websites, updated_website)}
+
+      {:error, _} ->
+        # Hide loading indicator and show error flash
+        {:noreply,
+         socket
+         |> push_event("hide-loading", %{id: id})
+         |> put_flash(:error, "Could not refresh website status")}
+    end
   end
 
   @impl true

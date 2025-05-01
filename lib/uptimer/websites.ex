@@ -276,10 +276,20 @@ defmodule Uptimer.Websites do
         error
     end
 
-    {:ok, response} = request_result
+    # Handle the request result
+    case request_result do
+      {:ok, response} ->
+        # Only update the status attribute
+        update_website(website, %{"status" => Integer.to_string(response.status)})
 
-    # Only update the status attribute
-    update_website(website, %{"status" => Integer.to_string(response.status)})
+      {:error, %Mint.TransportError{reason: :nxdomain}} ->
+        # Domain doesn't exist - set status to "dns_error"
+        update_website(website, %{"status" => "dns_error"})
+
+      {:error, _} ->
+        # Other errors - set status to generic error
+        update_website(website, %{"status" => "error"})
+    end
   end
 
   @doc """
@@ -343,7 +353,14 @@ defmodule Uptimer.Websites do
   end
 
   def refresh_thumbnail(%Website{} = website) do
-    update_website(website)
+    # First delete existing thumbnails to force a fresh generation
+    Thumbnail.delete_thumbnails_for_url(website.address)
+
+    # Then generate a new thumbnail
+    case generate_and_save_thumbnail(website) do
+      {:ok, updated_website} -> {:ok, updated_website}
+      {:error, _} = error -> error
+    end
   end
 
   @doc """
