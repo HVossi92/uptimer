@@ -17,7 +17,7 @@ Uptimer is a web application that allows you to monitor multiple websites at a g
 - **Automatic refreshes**: Near real-time status updates every 10 seconds
 - **Mobile responsive**: Monitor your websites from any device
 - **User accounts**: Secure authentication system to manage your monitored websites
-- **Free tier**: Monitor up to 32 websites with 4 thumbnails for free
+- **Free tier**: Monitor up to 12 websites with 4 thumbnails for free
 
 ## Technology Stack
 
@@ -95,7 +95,7 @@ Check the project's current status:
 
 - [x] Use iframes whenever possible to avoid overhead
 - [x] Make sure thumbnails are small
-- [x] Limit iframes to 32 per free account
+- [x] Limit iframes to 12 per free account
 - [x] Limit thumbnails to 4 per free account
 - [x] User deletion
 - [x] Add github link to page

@@ -269,3 +269,18 @@ function toggleAllThumbnails() {
 // Expose the refresh function to the window object so it can be called from the timer
 window.refreshAllWebsites = refreshAllWebsites;
 
+// Show the website form
+window.addEventListener("phx:hide-form", (e) => {
+  // Hide the website form and show the add card content
+  document.querySelector("#website-form")?.classList.add("hidden");
+  document.querySelector("#add-card-content")?.classList.remove("hidden");
+
+  // If we've reached the limit, hide the entire add card
+  const websiteCount = parseInt(document.querySelector("[data-website-count]")?.textContent || "0");
+  const maxWebsites = parseInt(document.querySelector("[data-max-websites]")?.textContent || "0");
+
+  if (websiteCount >= maxWebsites) {
+    document.querySelector("#add-card")?.remove();
+  }
+});
+

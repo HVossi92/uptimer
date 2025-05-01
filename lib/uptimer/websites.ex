@@ -91,9 +91,9 @@ defmodule Uptimer.Websites do
 
   """
   def create_website(attrs \\ %{}, user_id) do
-    # Check if the user has reached the maximum number of websites (32)
-    if count_websites_for_user(user_id) >= 32 do
-      {:error, "Maximum number of websites (32) reached for free accounts"}
+    # Check if the user has reached the maximum number of websites (12)
+    if count_websites_for_user(user_id) >= 12 do
+      {:error, "Maximum number of websites (12) reached for free accounts"}
     else
       # Normalize the address before making the request
       address = normalize_url(attrs["address"])
@@ -343,7 +343,14 @@ defmodule Uptimer.Websites do
   """
   def delete_website(%Website{} = website, opts \\ []) do
     # Ensure the caller owns this website
-    if Map.has_key?(opts, :user_id) && website.user_id != opts[:user_id] do
+    user_id =
+      if is_map(opts) do
+        Map.get(opts, :user_id)
+      else
+        Keyword.get(opts, :user_id)
+      end
+
+    if user_id && website.user_id != user_id do
       {:error, "You don't have permission to delete this website"}
     else
       # Delete all thumbnails for this website

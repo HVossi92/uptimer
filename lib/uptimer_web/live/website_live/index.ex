@@ -23,7 +23,7 @@ defmodule UptimerWeb.WebsiteLive.Index do
       |> assign(:website_count, website_count)
       |> assign(:thumbnail_count, thumbnail_count)
       # Free account limit
-      |> assign(:max_websites, 32)
+      |> assign(:max_websites, 12)
       # Free account limit
       |> assign(:max_thumbnails, 4)
 
@@ -190,11 +190,16 @@ defmodule UptimerWeb.WebsiteLive.Index do
         website_count = Websites.count_websites_for_user(user_id)
         thumbnail_count = Websites.count_thumbnails_for_user(user_id)
 
+        socket =
+          socket
+          |> stream_insert(:websites, website)
+          |> assign(:website_count, website_count)
+          |> assign(:thumbnail_count, thumbnail_count)
+          |> push_event("hide-form", %{})
+
+        # Hide the form after successful creation
         {:noreply,
          socket
-         |> stream_insert(:websites, website)
-         |> assign(:website_count, website_count)
-         |> assign(:thumbnail_count, thumbnail_count)
          |> put_flash(:info, "Website created successfully")}
 
       {:error, error_message} when is_binary(error_message) ->
