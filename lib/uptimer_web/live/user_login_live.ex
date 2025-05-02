@@ -31,7 +31,9 @@ defmodule UptimerWeb.UserLoginLive do
                 id="login_form"
                 action={~p"/users/log_in"}
                 phx-update="ignore"
+                phx-submit-loading=".opacity-75 cursor-not-allowed"
                 class="space-y-4"
+                onsubmit="if(this.classList.contains('submitting')) return false; this.classList.add('submitting');"
               >
                 <div>
                   <label for="user_email" class="block text-sm font-medium text-gray-300 mb-1">
