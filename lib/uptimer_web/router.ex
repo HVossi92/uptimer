@@ -83,6 +83,8 @@ defmodule UptimerWeb.Router do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
 
+      live "/upgrade", UpgradeLive, :index
+
       live "/websites", WebsiteLive.Index, :index
       live "/websites/new", WebsiteLive.Index, :new
       live "/websites/:id/edit", WebsiteLive.Index, :edit
