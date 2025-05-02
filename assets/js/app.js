@@ -208,6 +208,48 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// Add event listener for add website form
+document.addEventListener('DOMContentLoaded', () => {
+  // Reset form when clicking outside
+  const addCard = document.getElementById('add-card');
+  const websiteForm = document.getElementById('website-form');
+  const addCardContent = document.getElementById('add-card-content');
+
+  if (addCard && websiteForm && addCardContent) {
+    // Reset form when hiding it
+    addCard.addEventListener('click', (e) => {
+      if (e.target.closest('#website-form') === null &&
+        !websiteForm.classList.contains('hidden') &&
+        e.target.closest('button') === null) {
+        resetForm();
+      }
+    });
+
+    // Reset form on submit
+    const form = document.getElementById('new-website-form');
+    if (form) {
+      form.addEventListener('submit', () => {
+        // The form will be hidden by the server's push_event call
+        // Just focus back on the add card
+        setTimeout(() => {
+          if (addCard) {
+            addCard.focus();
+          }
+        }, 100);
+      });
+    }
+  }
+
+  function resetForm() {
+    if (websiteForm) {
+      const formInputs = websiteForm.querySelectorAll('input');
+      formInputs.forEach(input => {
+        input.value = '';
+      });
+    }
+  }
+});
+
 // Function to refresh all website previews (iframes and thumbnails)
 function refreshAllWebsites() {
   // Update all iframes by reloading their source
@@ -272,15 +314,37 @@ window.refreshAllWebsites = refreshAllWebsites;
 // Show the website form
 window.addEventListener("phx:hide-form", (e) => {
   // Hide the website form and show the add card content
-  document.querySelector("#website-form")?.classList.add("hidden");
-  document.querySelector("#add-card-content")?.classList.remove("hidden");
+  const websiteForm = document.querySelector("#website-form");
+  const addCardContent = document.querySelector("#add-card-content");
+
+  if (websiteForm) {
+    websiteForm.classList.add("hidden");
+
+    // Reset any form inputs
+    const formInputs = websiteForm.querySelectorAll("input");
+    formInputs.forEach(input => {
+      input.value = "";
+    });
+  }
+
+  if (addCardContent) {
+    addCardContent.classList.remove("hidden");
+  }
 
   // If we've reached the limit, hide the entire add card
-  const websiteCount = parseInt(document.querySelector("[data-website-count]")?.textContent || "0");
-  const maxWebsites = parseInt(document.querySelector("[data-max-websites]")?.textContent || "0");
+  const websiteCountEl = document.querySelector("[data-website-count]");
+  const maxWebsitesEl = document.querySelector("[data-max-websites]");
 
-  if (websiteCount >= maxWebsites) {
-    document.querySelector("#add-card")?.remove();
+  if (websiteCountEl && maxWebsitesEl) {
+    const websiteCount = parseInt(websiteCountEl.textContent.split('/')[0]);
+    const maxWebsites = parseInt(maxWebsitesEl.textContent.split('/')[1]);
+
+    if (websiteCount >= maxWebsites) {
+      const addCard = document.querySelector("#add-card");
+      if (addCard) {
+        addCard.remove();
+      }
+    }
   }
 
   // Explicitly resume the timer when the form is hidden

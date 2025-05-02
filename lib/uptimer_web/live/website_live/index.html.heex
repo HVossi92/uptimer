@@ -197,9 +197,8 @@
         <%= if @website_count < @max_websites do %>
           <div
             id="add-card"
-            class="group bg-white/90 dark:bg-white/5 backdrop-blur-sm rounded-xl border-2 border-gray-200 dark:border-white/10 flex flex-col items-center justify-center h-[340px] min-h-[200px] transition-all duration-300 hover:bg-white hover:border-blue-200 dark:hover:bg-white/10 dark:hover:border-white/20 cursor-pointer shadow-lg"
+            class="group bg-white/90 dark:bg-white/5 backdrop-blur-sm rounded-xl border-2 border-gray-200 dark:border-white/10 flex flex-col items-center justify-center h-[340px] min-h-[200px] transition-all duration-300 hover:bg-white hover:border-blue-200 dark:hover:bg-white/10 dark:hover:border-white/20 cursor-pointer shadow-lg relative"
             phx-click={JS.show(to: "#website-form") |> JS.hide(to: "#add-card-content")}
-            phx-click-away={JS.hide(to: "#website-form") |> JS.show(to: "#add-card-content")}
           >
             <div class="p-8 text-center" id="add-card-content">
               <div class="w-14 h-14 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -216,7 +215,7 @@
               class="absolute inset-0 w-full h-full p-6 hidden bg-white dark:bg-gray-800/95 backdrop-blur-md rounded-xl border border-gray-200 dark:border-white/20 z-10 overflow-y-auto"
               phx-click-away={JS.hide(to: "#website-form") |> JS.show(to: "#add-card-content")}
             >
-              <.form for={%{}} phx-submit="save" class="space-y-4">
+              <.form for={%{}} id="new-website-form" phx-submit="save" class="space-y-4">
                 <div>
                   <label
                     for="website-name"
@@ -227,6 +226,7 @@
                   <input
                     type="text"
                     name="website[name]"
+                    id="website-name-input"
                     required
                     class="mt-2 block w-full px-4 py-2.5 bg-gray-50 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-lg text-sm text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
                     focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:focus:border-blue-500/50 dark:focus:ring-blue-500/50"
@@ -243,6 +243,7 @@
                   <input
                     type="text"
                     name="website[address]"
+                    id="website-address-input"
                     required
                     class="mt-2 block w-full px-4 py-2.5 bg-gray-50 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-lg text-sm text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
                     focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:focus:border-blue-500/50 dark:focus:ring-blue-500/50"
@@ -255,8 +256,15 @@
                 </div>
                 <div class="flex justify-end mt-4">
                   <button
+                    type="button"
+                    class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-semibold py-2.5 px-6 rounded-lg transition-colors mr-2"
+                    phx-click={JS.hide(to: "#website-form") |> JS.show(to: "#add-card-content")}
+                  >
+                    Cancel
+                  </button>
+                  <button
                     type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors"
                   >
                     Add Website
                   </button>
