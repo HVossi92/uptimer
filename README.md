@@ -1,12 +1,12 @@
 # Uptimer
 
-![Uptimer Screenshot](/Users/hendrikvosskamp/Desktop/Screenshot%202025-04-30%20at%2019.45.23.png)
+![Uptimer Screenshot](/priv/static/images/app-screenshot.avif)
 
 ## Website Monitoring Made Simple
 
 Uptimer is a web application that allows you to monitor multiple websites at a glance. Built with Elixir and Phoenix LiveView, it provides a real-time dashboard to monitor the availability and visual state of your web properties.
 
-**[Try the Live Demo](https://uptimer.vossihub.org)**
+**[Try the Live Demo](https://uptimer.vossihub.com)**
 
 ## Features
 
@@ -72,14 +72,6 @@ Uptimer is a web application that allows you to monitor multiple websites at a g
    ```
 
 6. Visit [`localhost:4000`](http://localhost:4000) in your browser
-
-### Docker Deployment
-
-Alternatively, you can use Docker for development or production:
-
-```bash
-docker-compose up -d
-```
 
 ## Usage
 
